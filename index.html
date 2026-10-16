@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Оптовый маркетплейс</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--p:#7c3aed;--bg:#f5f3ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:#1f1235}
+header{background:var(--p);color:#fff;padding:14px;position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;z-index:5}
+header a{color:#fff;text-decoration:none;margin-left:10px;font-size:14px}
+main{padding:12px;max-width:700px;margin:auto}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:10px;font-size:16px;background:#fff}
+button{background:var(--p);color:#fff;border:0;padding:12px 16px;border-radius:10px;font-size:16px;width:100%;margin:6px 0}
+button.s{width:auto;background:#666;padding:6px 10px;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border-radius:12px;padding:8px;box-shadow:0 1px 3px #0002}
+.card img{width:100%;height:140px;object-fit:cover;border-radius:8px;background:#eee}
+.price{font-weight:bold;color:var(--p)}
+.gal{display:flex;overflow-x:auto;gap:8px;scroll-snap-type:x mandatory}
+.gal img{flex:0 0 100%;height:260px;object-fit:cover;scroll-snap-align:start;border-radius:12px}
+.muted{color:#777;font-size:14px}
+.row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding:8px 0;gap:8px}
+</style>
+</head>
+<body>
+<header><b onclick="go('#/')" style="cursor:pointer">Опт</b><div id="nav"></div></header>
+<main id="app">Загрузка...</main>
+<script>
+const SB_URL="https://fwvvnzrprjffsmkpvhrl.supabase.co";
+const SB_KEY="sb_publishable_wJYMx4Gs-NlZXUBFedcVaQ_H30wRYUz";
+const REQUISITES="Перевод на карту: [НОМЕР КАРТЫ] или СБП: [НОМЕР ТЕЛЕФОНА]. Получатель: [ВАШЕ ИМЯ]";
+
+const db=supabase.createClient(SB_URL,SB_KEY);
+let user=null,isAdmin=false;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const go=h=>{location.hash=h};
+window.addEventListener("hashchange",route);
+
+async function init(){
+  const {data}=await db.auth.getSession();
+  user=data.session?.user||null;
+  await checkAdmin(); renderNav(); route();
+  db.auth.onAuthStateChange(async(_e,s)=>{user=s?.user||null;await checkAdmin();renderNav();});
+}
+async function checkAdmin(){
+  isAdmin=false;
+  if(!user)return;
+  const {data}=await db.from("admins").select("user_id").eq("user_id",user.id);
+  isAdmin=!!(data&&data.length);
+}
+function renderNav(){
+  $("#nav").innerHTML=user
+    ?`<a href="#/cabinet">Кабинет</a>${isAdmin?'<a href="#/admin">Админ</a>':''}<a href="#" onclick="logout();return false">Выход</a>`
+    :`<a href="#/login">Войти</a>`;
+}
+async function logout(){await db.auth.signOut();go("#/");}
+
+function route(){
+  const [,page,arg]=(location.hash||"#/").split("/");
+  if(page==="login")return loginView();
+  if(page==="cabinet")return user?cabinetView():go("#/login");
+  if(page==="sell")return user?sellView(arg):go("#/login");
+  if(page==="pay")return user?payView(arg):go("#/login");
+  if(page==="product")return productView(arg);
+  if(page==="admin")return isAdmin?adminView():go("#/");
+  return homeView();
+}
+
+function catOptions(cats,sel){
+  const byParent={};
+  (cats||[]).forEach(c=>{const k=c.parent_id??"root";(byParent[k]??=[]).push(c);});
+  let out="";
+  const walk=(pid,depth)=>(byParent[pid]||[]).forEach(c=>{
+    out+=`<option value="${c.id}" ${c.id==sel?"selected":""}>${"— ".repeat(depth)}${esc(c.name)}</option>`;
+    walk(c.id,depth+1);
+  });
+  walk("root",0);
+  return out;
+}
+
+// ---------- КАТАЛОГ ----------
+async function homeView(){
+  const [{data:cats},{data:cities}]=await Promise.all([
+    db.from("categories").select("*").order("name"),
+    db.from("cities").select("*").order("name")
+  ]);
+  $("#app").innerHTML=`
+    <button onclick="go('#/sell/new')">+ Разместить товар</button>
+    <input id="q" placeholder="Поиск по названию" oninput="loadList()">
+    <select id="cat" onchange="loadList()"><option value="">Все категории</option>${catOptions(cats,null)}</select>
+    <select id="city" onchange="loadList()"><option value="">Все города</option>${(cities||[]).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
+    <div id="list" class="grid" style="margin-top:10px"></div>`;
+  loadList();
+}
+async function loadList(){
+  let q=db.from("products").select("id,title,price,min_order,photos,cities(name)").eq("status","published").order("created_at",{ascending:false});
+  const s=$("#q").value.trim(); if(s) q=q.ilike("title",`%${s}%`);
+  const c=$("#cat").value; if(c) q=q.eq("category_id",c);
+  const ci=$("#city").value; if(ci) q=q.eq("city_id",ci);
+  const {data,error}=await q.limit(60);
+  if(error){$("#list").innerHTML="Ошибка: "+esc(error.message);return;}
+  $("#list").innerHTML=(data||[]).map(p=>`
+    <div class="card" style="cursor:pointer" onclick="go('#/product/${p.id}')">
+      <img src="${esc(p.photos?.[0]||'')}" onerror="this.style.display='none'">
+      <div><b>${esc(p.title)}</b></div>
+      <div class="price">${p.price} ₽</div>
+      <div class="muted">мин. ${p.min_order} шт · ${esc(p.cities?.name||"")}</div>
+    </div>`).join("")||'<p class="muted">Товаров пока нет</p>';
+}
+async function productView(id){
+  const {data:p}=await db.from("products").select("*,cities(name),categories(name)").eq("id",id).single();
+  if(!p){$("#app").innerHTML="Товар не найден";return;}
+  const canSee=p.status==="published"||(user&&(user.id===p.seller_id||isAdmin));
+  if(!canSee){$("#app").innerHTML="Товар недоступен";return;}
+  $("#app").innerHTML=`
+    <div class="gal">${(p.photos||[]).map(u=>`<img src="${esc(u)}">`).join("")}</div>
+    <h2>${esc(p.title)}</h2>
+    <div class="price">${p.price} ₽ за штуку</div>
+    <p>Минимальный заказ: ${p.min_order} шт</p>
+    <p class="muted">Город: ${esc(p.cities?.name||"—")} · ${esc(p.categories?.name||"")}</p>
+    <p>${esc(p.description)}</p>
+    <h3>Продавец</h3>
+    ${p.seller_phone?`<a href="tel:${esc(p.seller_phone)}"><button>Позвонить: ${esc(p.seller_phone)}</button></a>`:""}
+    ${p.seller_email?`<a href="mailto:${esc(p.seller_email)}"><button>Написать на email</button></a>`:""}`;
+}
+
+// ---------- ВХОД ПО EMAIL И ПАРОЛЮ ----------
+function loginView(){
+  $("#app").innerHTML=`
+    <h3>Вход продавца</h3>
+    <input id="em" type="email" placeholder="Email">
+    <input id="pw" type="password" placeholder="Пароль (минимум 6 символов)">
+    <button onclick="login()">Войти</button>
+    <button class="s" onclick="register()">Зарегистрироваться</button>
+    <p id="msg" class="muted"></p>`;
+}
+async function login(){
+  const email=$("#em").value.trim(), password=$("#pw").value;
+  const {data,error}=await db.auth.signInWithPassword({email,password});
+  if(error){$("#msg").textContent="Ошибка: "+error.message;return;}
+  user=data.user; await checkAdmin(); renderNav(); go("#/cabinet");
+}
+async function register(){
+  const email=$("#em").value.trim(), password=$("#pw").value;
+  const {data,error}=await db.auth.signUp({email,password});
+  if(error){$("#msg").textContent="Ошибка: "+error.message;return;}
+  if(!data.session){$("#msg").textContent="Аккаунт создан. Нажмите «Войти».";return;}
+  user=data.user; await checkAdmin(); renderNav(); go("#/cabinet");
+}
+
+// ---------- КАБИНЕТ ПРОДАВЦА ----------
+const STATUS={draft:"Черновик",awaiting_payment:"Оплатить 25 ₽",pending_review:"На проверке",published:"Опубликован",rejected:"Отклонён"};
+async function cabinetView(){
+  const {data}=await db.from("products").select("id,title,status").eq("seller_id",user.id).order("created_at",{ascending:false});
+  $("#app").innerHTML=`
+    <button onclick="go('#/sell/new')">+ Добавить товар</button>
+    ${(data||[]).map(p=>`
+      <div class="row">
+        <div><b>${esc(p.title)}</b><div class="muted">${STATUS[p.status]}</div></div>
+        <div>
+          ${p.status==="awaiting_payment"?`<button class="s" onclick="go('#/pay/${p.id}')">Оплатить</button>`:""}
+          ${p.status!=="published"?`<button class="s" onclick="go('#/sell/${p.id}')">Изменить</button>`:""}
+          <button class="s" onclick="delProduct(${p.id})">Удалить</button>
+        </div>
+      </div>`).join("")||'<p class="muted">У вас пока нет товаров</p>'}`;
+}
+async function delProduct(id){
+  if(!confirm("Удалить товар?"))return;
+  await db.from("products").delete().eq("id",id);
+  cabinetView();
+}
+
+// ---------- ФОРМА ТОВАРА ----------
+async function sellView(id){
+  let p={};
+  if(id!=="new"&&id!=="admin"){
+    const r=await db.from("products").select("*").eq("id",id).single(); p=r.data||{};
+  }
+  const [{data:cats},{data:cities}]=await Promise.all([
+    db.from("categories").select("*").order("name"),
+    db.from("cities").select("*").order("name")
+  ]);
+  const minPhotos=id==="admin"?1:3;
+  $("#app").innerHTML=`
+    <h3>${id==="admin"?"Товар в каталог магазина":id==="new"?"Новый товар":"Редактирование"}</h3>
+    <input id="t" placeholder="Название" value="${esc(p.title)}">
+    <textarea id="d" rows="3" placeholder="Описание">${esc(p.description)}</textarea>
+    <select id="c"><option value="">Выберите категорию</option>${catOptions(cats,p.category_id)}</select>
+    <select id="ci"><option value="">Выберите город</option>${(cities||[]).map(c=>`<option value="${c.id}" ${c.id==p.city_id?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+    <input id="pr" type="number" placeholder="Цена за штуку, ₽" value="${p.price??""}">
+    <input id="mo" type="number" placeholder="Минимальный заказ, шт" value="${p.min_order??""}">
+    <input id="ph" type="tel" placeholder="Телефон для связи" value="${esc(p.seller_phone)}">
+    <input id="em2" type="email" placeholder="Email для связи" value="${esc(p.seller_email)}">
+    <p class="muted">Фото: от ${minPhotos} до 6 (из галереи). При редактировании можно не выбирать фото, останутся старые.</p>
+    <input id="files" type="file" accept="image/*" multiple>
+    <button onclick="saveProduct('${id}',${minPhotos})">Сохранить</button>
+    <p id="msg" class="muted"></p>`;
+}
+async function saveProduct(id,minPhotos){
+  const msg=$("#msg");
+  const title=$("#t").value.trim(), price=+$("#pr").value, min=+$("#mo").value;
+  const files=[...$("#files").files];
+  if(!title||!price||!min||!$("#c").value){msg.textContent="Заполните название, категорию, цену и минимальный заказ";return;}
+  const isNew=id==="new"||id==="admin";
+  if(isNew&&files.length<minPhotos){msg.textContent=`Загрузите от ${minPhotos} до 6 фото`;return;}
+  if(files.length>6){msg.textContent="Не больше 6 фото";return;}
+  msg.textContent="Сохраняем...";
+
+  const photos=[];
+  for(const [i,f] of files.entries()){
+    const path=`${user.id}/${Date.now()}_${i}.jpg`;
+    const {error}=await db.storage.from("product-photos").upload(path,f,{contentType:f.type});
+    if(error){msg.textContent="Ошибка фото: "+error.message;return;}
+    photos.push(db.storage.from("product-photos").getPublicUrl(path).data.publicUrl);
+  }
+
+  const row={
+    title,description:$("#d").value,category_id:+$("#c").value,
+    city_id:+$("#ci").value||null,price,min_order:min,
+    seller_phone:$("#ph").value,seller_email:$("#em2").value
+  };
+  if(photos.length) row.photos=photos;
+
+  if(isNew){
+    if(id==="admin"){ row.seller_id=null; row.status="published"; }
+    else { row.seller_id=user.id; row.status="awaiting_payment"; }
+    const {data,error}=await db.from("products").insert(row).select().single();
+    if(error){msg.textContent=error.message;return;}
+    go(id==="admin"?"#/admin":"#/pay/"+data.id);
+  } else {
+    const {error}=await db.from("products").update(row).eq("id",id);
+    if(error){msg.textContent=error.message;return;}
+    go("#/cabinet");
+  }
+}
+
+// ---------- ОПЛАТА 25 ₽ ----------
+async function payView(id){
+  const {data:p}=await db.from("products").select("title").eq("id",id).single();
+  if(!p){go("#/cabinet");return;}
+  $("#app").innerHTML=`
+    <h3>Оплата публикации: ${esc(p.title)}</h3>
+    <p><b>25 ₽</b> за этот товар.</p>
+    <p>${esc(REQUISITES)}</p>
+    <p class="muted">После перевода загрузите скриншот чека и нажмите «Я оплатил».</p>
+    <input id="rc" type="file" accept="image/*">
+    <button onclick="sendPayment(${id})">Я оплатил</button>
+    <p id="msg" class="muted"></p>`;
+}
+async function sendPayment(id){
+  const f=$("#rc").files[0], msg=$("#msg");
+  if(!f){msg.textContent="Загрузите чек";return;}
+  msg.textContent="Отправляем...";
+  const path=`${user.id}/${id}_${Date.now()}.jpg`;
+  const {error:e1}=await db.storage.from("receipts").upload(path,f,{contentType:f.type});
+  if(e1){msg.textContent=e1.message;return;}
+  const {error:e2}=await db.from("payments").insert({product_id:id,seller_id:user.id,receipt_url:path});
+  if(e2){msg.textContent=e2.message;return;}
+  await db.from("products").update({status:"pending_review"}).eq("id",id);
+  alert("Чек отправлен. Товар появится на сайте после проверки.");
+  go("#/cabinet");
+}
+
+// ---------- АДМИН ----------
+async function adminView(){
+  $("#app").innerHTML=`
+    <h3>Модерация (оплаты 25 ₽)</h3><div id="mod">Загрузка...</div>
+    <h3>Каталог магазина</h3>
+    <button onclick="go('#/sell/admin')">+ Добавить товар в каталог</button>
+    <h3>Категории</h3><div id="cats"></div>
+    <h3>Города</h3><div id="cities"></div>`;
+  loadModeration(); loadTaxonomy();
+}
+async function loadModeration(){
+  const {data}=await db.from("payments").select("id,receipt_url,products(id,title,price,photos)").eq("status","pending").order("created_at");
+  const rows=await Promise.all((data||[]).filter(p=>p.products).map(async p=>{
+    const {data:s}=await db.storage.from("receipts").createSignedUrl(p.receipt_url,3600);
+    return `<div class="card" style="margin:8px 0">
+      <b>${esc(p.products.title)}</b> · ${p.products.price} ₽
+      <div class="gal" style="margin:6px 0">${(p.products.photos||[]).map(u=>`<img src="${esc(u)}" style="flex:0 0 40%;height:120px">`).join("")}</div>
+      <a href="${esc(s?.signedUrl||"#")}" target="_blank">Открыть чек</a>
+      <div>
+        <button onclick="moderate(${p.id},${p.products.id},true)">Подтвердить и опубликовать</button>
+        <button onclick="moderate(${p.id},${p.products.id},false)">Отклонить</button>
+      </div></div>`;
+  }));
+  $("#mod").innerHTML=rows.join("")||'<p class="muted">Нет товаров на проверке</p>';
+}
+async function moderate(payId,prodId,ok){
+  await db.from("payments").update({status:ok?"confirmed":"rejected"}).eq("id",payId);
+  await db.from("products").update({status:ok?"published":"rejected"}).eq("id",prodId);
+  loadModeration();
+}
+async function loadTaxonomy(){
+  const [{data:cats},{data:cities}]=await Promise.all([
+    db.from("categories").select("*").order("name"),
+    db.from("cities").select("*").order("name")
+  ]);
+  $("#cats").innerHTML=`
+    <select id="pc"><option value="">— корневая категория —</option>${catOptions(cats,null)}</select>
+    <input id="cn" placeholder="Название категории или модели">
+    <button onclick="addCat()">Добавить категорию</button>
+    ${(cats||[]).map(c=>`<div class="row"><span>${esc(c.name)}</span><button class="s" onclick="delCat(${c.id})">Удалить</button></div>`).join("")}`;
+  $("#cities").innerHTML=`
+    <input id="ctn" placeholder="Город">
+    <button onclick="addCity()">Добавить город</button>
+    ${(cities||[]).map(c=>`<div class="row"><span>${esc(c.name)}</span></div>`).join("")}`;
+}
+async function addCat(){
+  const name=$("#cn").value.trim(); if(!name)return;
+  const pid=$("#pc").value;
+  await db.from("categories").insert({name,parent_id:pid?+pid:null});
+  loadTaxonomy();
+}
+async function delCat(id){
+  if(!confirm("Удалить категорию и все вложенные?"))return;
+  await db.from("categories").delete().eq("id",id);
+  loadTaxonomy();
+}
+async function addCity(){
+  const name=$("#ctn").value.trim(); if(!name)return;
+  await db.from("cities").insert({name});
+  loadTaxonomy();
+}
+
+init();
+</script>
+</body>
+</html>
