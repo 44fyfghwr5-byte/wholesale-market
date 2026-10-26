@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Чаты поддержки</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--p:#7c3aed;--p2:#a855f7;--bg:#f5f3ff;--ink:#1f1235}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(90deg,var(--p),var(--p2));color:#fff;padding:14px 16px;position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;z-index:5}
+header a{color:#fff;text-decoration:none;font-size:14px;margin-left:12px}
+main{max-width:760px;margin:auto;padding:12px}
+.item{background:#fff;border-radius:14px;padding:12px;margin:8px 0;box-shadow:0 2px 6px #0001;cursor:pointer}
+.item .top{display:flex;justify-content:space-between;gap:8px}
+.prev{margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.muted{color:#777;font-size:14px}
+.chat-head{display:flex;align-items:center;gap:10px;margin:6px 0 10px;flex-wrap:wrap}
+.log{background:#fff;border-radius:14px;padding:12px;height:56vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;box-shadow:0 2px 6px #0001}
+.msg{max-width:80%;padding:9px 12px;border-radius:14px;font-size:15px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.msg.user{align-self:flex-start;background:#f0ebfb;border-bottom-left-radius:4px}
+.msg.admin{align-self:flex-end;background:var(--p);color:#fff;border-bottom-right-radius:4px}
+.msg img{display:block;max-width:100%;max-height:300px;border-radius:10px;margin-bottom:6px}
+.time{font-size:11px;opacity:.6;margin-top:3px;text-align:right}
+.rform{display:flex;gap:8px;margin-top:10px}
+textarea{flex:1;resize:none;height:50px;padding:10px;border:1px solid #d5d0e6;border-radius:12px;font-size:16px;font-family:inherit}
+button{background:var(--p);color:#fff;border:0;border-radius:12px;padding:0 16px;font-size:15px;font-weight:600;cursor:pointer}
+button.s{padding:8px 12px;background:#6b6b80;font-size:14px}
+button:disabled{opacity:.5}
+input{width:100%;padding:12px;margin:6px 0;border:1px solid #d5d0e6;border-radius:10px;font-size:16px}
+.err{color:#dc2626;font-size:14px}
+</style>
+</head>
+<body>
+<header><b>Чаты поддержки</b><div id="nav"></div></header>
+<main id="app">Загрузка...</main>
+<script>
+const SB_URL="https://fwvvnzrprjffsmkpvhrl.supabase.co";
+const SB_KEY="sb_publishable_wJYMx4Gs-NlZXUBFedcVaQ_H30wRYUz";
+const db=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=t=>new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+let user=null, MSGS=[], OPEN=null, TIMER=null;
+
+// ---------- ВХОД (только админ) ----------
+async function init(){
+  const {data}=await db.auth.getSession();
+  user=data.session?.user||null;
+  if(!user) return loginView();
+  const {data:a}=await db.from("admins").select("user_id").eq("user_id",user.id);
+  if(!(a&&a.length)) return location.replace("../");
+  panel();
+}
+function loginView(){
+  $("#app").innerHTML=`
+    <h3>Вход</h3>
+    <input id="em" type="email" placeholder="Email">
+    <input id="pw" type="password" placeholder="Пароль">
+    <button onclick="login()">Войти</button>
+    <p id="msg" class="muted"></p>`;
+}
+async function login(){
+  const {error}=await db.auth.signInWithPassword({email:$("#em").value.trim(),password:$("#pw").value});
+  if(error){ $("#msg").textContent="Неверный email или пароль."; return; }
+  init();
+}
+async function logout(){ await db.auth.signOut(); location.replace("./"); }
+
+// ---------- СПИСОК И ЧАТ ----------
+function panel(){
+  $("#nav").innerHTML=`<a href="../">Админ</a><a href="#" onclick="logout();return false">Выход</a>`;
+  load();
+  clearInterval(TIMER);
+  TIMER=setInterval(load,10000);
+}
+async function load(){
+  const {data,error}=await db.from("support_messages").select("*").order("created_at");
+  if(error){ $("#app").innerHTML=`<p class="err">Ошибка: ${esc(error.message)}</p>`; return; }
+  MSGS=data||[];
+  if(OPEN) updateLog(false); else renderList();
+}
+function groups(){
+  const map={};
+  MSGS.forEach(m=>{
+    const g=map[m.conv_key]||(map[m.conv_key]={key:m.conv_key,last:null,email:""});
+    g.last=m;
+    if(m.seller_email) g.email=m.seller_email;
+  });
+  return Object.values(map).sort((a,b)=>new Date(b.last.created_at)-new Date(a.last.created_at));
+}
+function renderList(){
+  const gs=groups();
+  $("#app").innerHTML=gs.map(g=>`
+    <div class="item" onclick="openChat('${g.key}')">
+      <div class="top"><b>${esc(g.email||"Гость")}</b><span class="muted">${fmt(g.last.created_at)}</span></div>
+      <div class="muted prev">${g.last.sender==="admin"?"Вы: ":""}${esc(g.last.body)}</div>
+    </div>`).join("")||'<p class="muted">Сообщений пока нет</p>';
+}
+function openChat(key){
+  OPEN=key;
+  const g=groups().find(x=>x.key===key);
+  $("#app").innerHTML=`
+    <div class="chat-head"><button class="s" onclick="closeChat()">← Назад</button><b>${esc(g?.email||"Гость")}</b></div>
+    <div id="log" class="log"></div>
+    <form class="rform" onsubmit="reply(event)">
+      <textarea id="rt" placeholder="Ответ клиенту..." maxlength="1000"></textarea>
+      <button id="rbtn">Отправить</button>
+    </form>
+    <p id="rerr" class="err"></p>`;
+  updateLog(true);
+}
+function closeChat(){ OPEN=null; renderList(); }
+function updateLog(scroll){
+  const log=$("#log"); if(!log) return;
+  const near=log.scrollHeight-log.scrollTop-log.clientHeight<100;
+  const list=MSGS.filter(m=>m.conv_key===OPEN);
+  log.innerHTML=list.map(m=>`<div class="msg ${m.sender==="admin"?"admin":"user"}">${m.attachment?`<img src="${esc(m.attachment)}">`:""}${m.body&&m.body!=="📷 Фото"?esc(m.body):""}<div class="time">${fmt(m.created_at)}</div></div>`).join("")
+    ||'<p class="muted">Сообщений нет</p>';
+  if(scroll||near) log.scrollTop=log.scrollHeight;
+}
+async function reply(e){
+  e.preventDefault();
+  const t=$("#rt"), body=t.value.trim();
+  if(!body) return;
+  $("#rbtn").disabled=true; $("#rerr").textContent="";
+  const {error}=await db.rpc("support_admin_reply",{p_key:OPEN,p_body:body});
+  $("#rbtn").disabled=false;
+  if(error){ $("#rerr").textContent=error.message; return; }
+  t.value="";
+  await load();
+}
+
+init();
+</script>
+</body>
+</html>
