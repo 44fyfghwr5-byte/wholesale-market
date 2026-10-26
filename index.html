@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>700/OPTOM</title>
+<link rel="preconnect" href="https://fwvvnzrprjffsmkpvhrl.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<style>
+:root{--bg:#0c0e13;--card:#151922;--line:#262b36;--txt:#f3f3f5;--mut:#9aa1ad;--acc:#9b1d30;--acc2:#c02a43}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:80px}
+a{color:inherit}
+header.top{position:sticky;top:0;z-index:20;background:#0c0e13f5;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.logo{display:flex;flex-direction:column;text-decoration:none;line-height:1}
+.logo .l1{font-size:30px;font-weight:900;letter-spacing:-1px}
+.logo .l2{font-size:10px;letter-spacing:4px;color:var(--mut);margin-top:3px}
+.burger{background:none;border:0;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:5px;width:auto}
+.burger:hover{background:none}
+.burger span{display:block;width:24px;height:2px;background:var(--txt);border-radius:2px}
+.menu{position:fixed;inset:0;background:#0009;display:none;z-index:30}
+.menu.open{display:block}
+.menu-box{position:absolute;top:60px;right:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;min-width:230px;box-shadow:0 10px 30px #0008}
+.menu-box a{display:block;padding:13px 14px;text-decoration:none;border-radius:10px;font-size:16px}
+.menu-box a:hover{background:#1f2430}
+main{max-width:1100px;margin:0 auto;padding:14px 16px 30px}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:25;background:#0f1218;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px))}
+.bottom a{flex:1;text-align:center;text-decoration:none;color:var(--mut);font-size:20px;position:relative;line-height:1.2}
+.bottom a span{display:block;font-size:11px;margin-top:2px}
+.bottom a.on,.bottom a.on span{color:var(--acc2)}
+.bottom a.on span{font-weight:600}
+.bottom i{position:absolute;top:-4px;left:calc(50% + 6px);background:var(--acc2);color:#fff;font-style:normal;font-size:10px;border-radius:9px;padding:0 5px;min-width:16px;line-height:16px;text-align:center}
+.bottom i:empty{display:none}
+h1,h2,h3{letter-spacing:-.3px}
+h2{margin:18px 0 10px}
+.muted{color:var(--mut);font-size:14px}
+.crumbs{font-size:14px;color:var(--mut);margin:4px 0 14px}
+.crumbs a{color:var(--mut)}
+.hero{position:relative;border-radius:18px;padding:30px 24px;background:radial-gradient(circle at 85% 15%,#5a0f1c 0,#151922 55%);border:1px solid var(--line);overflow:hidden}
+.hero h1{font-size:32px;margin:0 0 10px}
+.hero p{color:var(--mut);margin:0 0 18px;max-width:480px;line-height:1.5}
+.script{position:absolute;right:20px;bottom:4px;font-style:italic;font-size:46px;color:#ffffff1a;font-family:cursive}
+.btn{display:inline-block;background:var(--acc);color:#fff;border:0;border-radius:12px;padding:13px 20px;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer;text-align:center}
+.btn:hover{background:var(--acc2)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+.btn.full{display:block;width:100%;margin:6px 0}
+button{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer;width:auto}
+button:hover{background:var(--acc2)}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+button.big{padding:14px 16px;font-size:15px;flex:1;width:auto}
+.feats{display:grid;grid-template-columns:repeat(4,1fr);margin:20px 0;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.feat{padding:16px 10px;text-align:center;border-right:1px solid var(--line)}
+.feat:last-child{border-right:0}
+.feat i{font-size:24px;font-style:normal;display:block;margin-bottom:6px}
+.feat b{font-size:14px}
+.feat span{display:block;font-size:12px;color:var(--mut);margin-top:4px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 10px;text-align:center;font-weight:600;cursor:pointer}
+.tile:hover{border-color:var(--acc2)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.pc{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.pc img{width:100%;height:190px;object-fit:cover;background:#1b1f28;cursor:pointer}
+.pc-body{padding:12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.pc-title{font-weight:600;cursor:pointer;line-height:1.3}
+.price{font-size:20px;font-weight:800;margin:4px 0}
+.acts{display:flex;gap:6px;margin-top:auto;padding-top:8px}
+.acts button{flex:1}
+.acts button.ghost{flex:0 0 46px}
+.pwrap{display:grid;grid-template-columns:1.1fr 1fr;gap:28px}
+.main-img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:16px;background:#1b1f28;display:block}
+.thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto}
+.thumbs img{width:72px;height:72px;object-fit:cover;border-radius:10px;cursor:pointer;border:2px solid transparent;flex:0 0 auto}
+.thumbs img.on{border-color:var(--acc2)}
+.ptitle{font-size:30px;margin:6px 0}
+.psub{color:var(--mut);font-size:14px}
+.qty{display:flex;align-items:center;gap:12px;margin:14px 0}
+.qty button{width:42px;height:42px;padding:0;font-size:20px}
+.qty span{min-width:50px;text-align:center;font-size:18px;font-weight:700}
+.acts2{display:flex;gap:10px;margin:6px 0 18px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:15px}
+.fact b{display:block;font-size:12px;color:var(--mut);font-weight:500;margin-bottom:4px}
+.desc{white-space:pre-wrap;color:#d6d9e0;line-height:1.5}
+.seller{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:16px}
+.cam{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}
+.cam label{display:block;font-weight:600;color:var(--acc2);margin-bottom:6px}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border:1px solid var(--line);border-radius:10px;font-size:16px;background:#101319;color:var(--txt)}
+.fl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.crow{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin:8px 0}
+.crow img{width:70px;height:70px;object-fit:cover;border-radius:10px;background:#1b1f28}
+.crow input{width:120px;margin:4px 0}
+.crow button.ghost{padding:6px 10px;font-size:13px}
+.total{font-size:20px;margin:16px 0 4px}
+.langs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.langs button{background:var(--card);border:1px solid var(--line);color:var(--txt);padding:8px 14px;border-radius:999px;font-size:14px}
+.langs button.on{background:var(--acc);border-color:var(--acc)}
+.about{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;font-size:17px;line-height:1.7;white-space:pre-wrap}
+footer{border-top:1px solid var(--line);padding:22px 16px;margin-top:30px}
+.ftop{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.flinks a{color:var(--mut);text-decoration:none;margin-left:14px;font-size:14px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){
+  .grid{grid-template-columns:1fr 1fr}
+  .feats{grid-template-columns:1fr 1fr}
+  .feat:nth-child(2){border-right:0}
+  .feat:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .tiles{grid-template-columns:1fr 1fr}
+  .pwrap{grid-template-columns:1fr}
+  .fl{grid-template-columns:1fr}
+  .hero h1{font-size:25px}
+  .ptitle{font-size:24px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="#/"><span class="l1">700</span><span class="l2">OPTOM</span></a>
+  <button class="burger" onclick="toggleMenu()" aria-label="Меню"><span></span><span></span><span></span></button>
+  <div id="menu" class="menu" onclick="if(event.target.id==='menu')toggleMenu()">
+    <div class="menu-box">
+      <a href="#/about" onclick="toggleMenu()">О нас</a>
+      <a href="support/" onclick="toggleMenu()">Чат с поддержкой</a>
+      <a href="seller/" onclick="toggleMenu()">Для продавцов</a>
+    </div>
+  </div>
+</header>
+<main id="app"></main>
+<nav class="bottom">
+  <a href="#/" data-tab="home">🏠<span>Главная</span></a>
+  <a href="#/catalog" data-tab="catalog">▦<span>Каталог</span></a>
+  <a href="#/fav" data-tab="fav">♡<i id="favn"></i><span>Избранное</span></a>
+  <a href="#/cart" data-tab="cart">🛒<i id="cartn"></i><span>Корзина</span></a>
+  <a href="seller/" data-tab="profile">👤<span>Профиль</span></a>
+</nav>
+<footer>
+  <div class="ftop">
+    <div class="logo"><span class="l1">700</span><span class="l2">OPTOM</span></div>
+    <div class="flinks">
+      <a href="#/">Главная</a><a href="#/catalog">Каталог</a><a href="#/about">О нас</a><a href="support/">Чат</a><a href="seller/">Для продавцов</a>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:14px">© 700/OPTOM</p>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL="https://fwvvnzrprjffsmkpvhrl.supabase.co";
+const SB_KEY="sb_publishable_wJYMx4Gs-NlZXUBFedcVaQ_H30wRYUz";
+const db=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const go=h=>{ if(location.hash===h) route(); else location.hash=h; };
+let CATS=[], COUNTRIES=[], CITIES=[], FILTER={cat:null,country:null,city:null}, QTY=1, LANG="ru";
+
+// Кэш в браузере: страницы открываются сразу, данные обновляются в фоне
+const store={
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+const favs=()=>store.get("opt_fav",[]);
+const setFavs=a=>store.set("opt_fav",a);
+const cart=()=>store.get("opt_cart",{});
+const setCart=o=>store.set("opt_cart",o);
+
+// ---------- СПРАВОЧНИКИ ----------
+function applyRefs(r){ CATS=r.cats||[]; COUNTRIES=r.countries||[]; CITIES=r.cities||[]; }
+async function loadRefs(){
+  applyRefs(store.get("opt_refs",{}));
+  const [{data:cats},{data:countries},{data:cities}]=await Promise.all([
+    db.from("categories").select("*").order("name"),
+    db.from("countries").select("*").order("name"),
+    db.from("cities").select("*").order("name")
+  ]);
+  if(cats&&countries&&cities){
+    const r={cats,countries,cities};
+    applyRefs(r); store.set("opt_refs",r);
+  }
+}
+const REFS=loadRefs().catch(()=>{});
+function treeOrder(list){
+  const byParent={};
+  list.forEach(c=>{ const k=c.parent_id??"root"; (byParent[k]??=[]).push(c); });
+  const out=[];
+  const walk=(pid,d)=>(byParent[pid]||[]).forEach(c=>{ out.push({c,d}); walk(c.id,d+1); });
+  walk("root",0);
+  return out;
+}
+function catOptions(list,sel){
+  return treeOrder(list||[]).map(({c,d})=>`<option value="${c.id}" ${c.id==sel?"selected":""}>${"— ".repeat(d)}${esc(c.name)}</option>`).join("");
+}
+function countryOptions(sel){
+  return COUNTRIES.map(k=>`<option value="${k.id}" ${k.id==sel?"selected":""}>${esc(k.name)}</option>`).join("");
+}
+function cityOptions(countryId,sel){
+  return CITIES.filter(c=>!countryId||c.country_id==countryId)
+    .map(c=>`<option value="${c.id}" ${c.id==sel?"selected":""}>${esc(c.name)}</option>`).join("");
+}
+function descIds(id){
+  const out=[+id];
+  const walk=pid=>CATS.filter(c=>c.parent_id===pid).forEach(c=>{ out.push(c.id); walk(c.id); });
+  walk(+id);
+  return out;
+}
+function updateBadges(){
+  const cn=Object.keys(cart()).length, fn=favs().length;
+  const c=$("#cartn"), f=$("#favn");
+  if(c) c.textContent=cn||"";
+  if(f) f.textContent=fn||"";
+}
+function setTab(t){
+  document.querySelectorAll(".bottom a").forEach(a=>a.classList.toggle("on",a.dataset.tab===t));
+}
+function toggleMenu(){ $("#menu").classList.toggle("open"); }
+function closeMenu(){ const m=$("#menu"); if(m) m.classList.remove("open"); }
+
+// ---------- МАРШРУТЫ ----------
+function route(){
+  const [,page,arg]=(location.hash||"#/").split("/");
+  closeMenu();
+  window.scrollTo(0,0);
+  if(page==="product"){ setTab(""); return productView(arg); }
+  if(page==="catalog"||page==="search"){ setTab("catalog"); return catalogView(); }
+  if(page==="fav"){ setTab("fav"); return favView(); }
+  if(page==="cart"){ setTab("cart"); return cartView(); }
+  if(page==="about"){ setTab(""); return aboutView(); }
+  setTab("home"); return homeView();
+}
+window.addEventListener("hashchange",route);
+
+// ---------- ГЛАВНАЯ ----------
+function paintTiles(){
+  const el=$("#tiles"); if(!el) return;
+  const top=CATS.filter(c=>c.parent_id==null);
+  el.innerHTML=top.map(c=>`<div class="tile" onclick="openCat(${c.id})">${esc(c.name)}</div>`).join("");
+}
+async function homeView(){
+  $("#app").innerHTML=`
+    <section class="hero">
+      <h1>Мужская одежда<br>оптом и в розницу</h1>
+      <p>Товары от продавцов. Адрес и телефон продавца указаны в каждой карточке.</p>
+      <a class="btn" href="#/catalog">Перейти в каталог →</a>
+      <span class="script">700 Style</span>
+    </section>
+    <section class="feats">
+      <div class="feat"><i>📞</i><b>Прямая связь</b><span>Телефон и адрес продавца</span></div>
+      <div class="feat"><i>📷</i><b>Поиск по фото</b><span>Найдите похожий товар</span></div>
+      <div class="feat"><i>❤️</i><b>Избранное</b><span>Сохраняйте понравившееся</span></div>
+      <div class="feat"><i>🛒</i><b>Корзина</b><span>Соберите свой заказ</span></div>
+    </section>
+    <h2>Категории</h2>
+    <div id="tiles" class="tiles"></div>
+    <h2>Новинки</h2>
+    <div id="list" class="grid"></div>`;
+  paintTiles();
+  const cached=store.get("opt_home",null);
+  if(cached) renderCards($("#list"),cached);
+  await REFS;
+  paintTiles();
+  const {data}=await db.from("products").select("id,title,price,min_order,photos,cities(name)")
+    .eq("status","published").order("created_at",{ascending:false}).limit(12);
+  if(!$("#list")) return;
+  renderCards($("#list"),data);
+  store.set("opt_home",data||[]);
+}
+function openCat(id){
+  FILTER={cat:id,country:null,city:null};
+  go("#/catalog");
+}
+
+// ---------- КАРТОЧКИ ----------
+function renderCards(el,data){
+  if(!el) return;
+  const fv=favs(), cv=cart();
+  el.innerHTML=(data||[]).map(p=>card(p,fv,cv)).join("")||'<p class="muted">Товаров пока нет</p>';
+}
+function card(p,fv,cv){
+  const liked=fv.includes(p.id), inCart=!!cv[p.id];
+  return `<div class="pc">
+    <img loading="lazy" decoding="async" src="${esc(p.photos?.[0]||"")}" onclick="go('#/product/${p.id}')" onerror="this.style.visibility='hidden'">
+    <div class="pc-body">
+      <div class="pc-title" onclick="go('#/product/${p.id}')">${esc(p.title)}</div>
+      <div class="price">${p.price} ₽</div>
+      <div class="muted">мин. ${p.min_order} шт · ${esc(p.cities?.name||"")}</div>
+      <div class="acts">
+        <button class="ghost" data-fav="${p.id}" onclick="toggleFav(${p.id})">${liked?"❤️":"🤍"}</button>
+        <button data-cart="${p.id}" onclick="addCart(${p.id},${p.min_order})">${inCart?"В корзине ✓":"В корзину"}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function toggleFav(id){
+  let a=favs();
+  a=a.includes(id)?a.filter(x=>x!==id):[...a,id];
+  setFavs(a); updateBadges();
+  const liked=a.includes(id);
+  document.querySelectorAll(`[data-fav="${id}"]`).forEach(b=>{
+    b.innerHTML=b.classList.contains("big")
+      ? (liked?"❤️ В избранном":"🤍 В избранное")
+      : (liked?"❤️":"🤍");
+  });
+}
+function addCart(id,qty){
+  const c=cart();
+  c[id]=Math.max(1,+qty||1);
+  setCart(c); updateBadges();
+  document.querySelectorAll(`[data-cart="${id}"]`).forEach(b=>{ b.innerHTML="В корзине ✓"; });
+}
+function setQty(id,val,min){
+  const c=cart();
+  c[id]=Math.max(+min,Math.floor(+val)||+min);
+  setCart(c); updateBadges(); cartView();
+}
+function removeCart(id){
+  const c=cart(); delete c[id]; setCart(c); updateBadges(); cartView();
+}
+
+// ---------- ИЗБРАННОЕ ----------
+async function favView(){
+  const ids=favs();
+  $("#app").innerHTML=`<h2>Избранное ❤️</h2><div id="list" class="grid"></div>`;
+  if(!ids.length){ $("#list").outerHTML='<p class="muted">Вы пока ничего не отметили</p>'; return; }
+  const {data}=await db.from("products").select("id,title,price,min_order,photos,cities(name)").in("id",ids).eq("status","published");
+  renderCards($("#list"),data);
+}
+
+// ---------- КАТАЛОГ (поиск, фильтры, камера) ----------
+async function catalogView(){
+  $("#app").innerHTML=`
+    <h2>Каталог</h2>
+    <input id="q" placeholder="🔍 Название товара" oninput="runSearch()">
+    <div class="cam">
+      <label>📷 Найти похожий товар по фото</label>
+      <input type="file" accept="image/*" capture="environment" onchange="photoSearch(this.files[0])">
+    </div>
+    <div class="fl">
+      <select id="cat" onchange="runSearch()"></select>
+      <select id="country" onchange="onSearchCountry()"></select>
+      <select id="city" onchange="runSearch()"></select>
+    </div>
+    <p id="info" class="muted"></p>
+    <div id="list" class="grid"></div>`;
+  fillFilters();
+  runSearch();
+  await REFS;
+  fillFilters();
+}
+function fillFilters(){
+  if(!$("#cat")) return;
+  $("#cat").innerHTML=`<option value="">Все категории</option>${catOptions(CATS,FILTER.cat)}`;
+  $("#country").innerHTML=`<option value="">Все страны</option>${countryOptions(FILTER.country)}`;
+  $("#city").innerHTML=`<option value="">Все города</option>${cityOptions(FILTER.country,FILTER.city)}`;
+}
+function onSearchCountry(){
+  $("#city").innerHTML=`<option value="">Все города</option>${cityOptions($("#country").value||null,null)}`;
+  runSearch();
+}
+async function runSearch(){
+  if(!$("#list")) return;
+  FILTER={cat:$("#cat")?.value||null,country:$("#country")?.value||null,city:$("#city")?.value||null};
+  const q=($("#q")?.value||"").trim().replace(/[%,()*]/g,"");
+  let req=db.from("products").select("id,title,price,min_order,photos,cities(name)")
+    .eq("status","published").order("created_at",{ascending:false}).limit(60);
+  if(q) req=req.ilike("title",`%${q}%`);
+  if(FILTER.cat) req=req.in("category_id",descIds(FILTER.cat));
+  if(FILTER.country) req=req.eq("country_id",FILTER.country);
+  if(FILTER.city) req=req.eq("city_id",FILTER.city);
+  const {data,error}=await req;
+  if(!$("#list")) return;
+  if(error){ $("#list").innerHTML="Ошибка: "+esc(error.message); return; }
+  $("#info").textContent=(data||[]).length?"":"Товаров не найдено";
+  renderCards($("#list"),data);
+}
+
+// ---------- ОТПЕЧАТОК ФОТО ----------
+const gray=(d,k)=>0.299*d[k]+0.587*d[k+1]+0.114*d[k+2];
+function loadImg(src){
+  return new Promise((res,rej)=>{
+    const im=new Image();
+    im.crossOrigin="anonymous";
+    im.onload=()=>res(im);
+    im.onerror=()=>rej(new Error("image"));
+    im.src=src;
+  });
+}
+async function dhash(src){
+  const im=await loadImg(src);
+  const c=document.createElement("canvas");
+  c.width=9; c.height=8;
+  const x=c.getContext("2d");
+  x.drawImage(im,0,0,9,8);
+  const d=x.getImageData(0,0,9,8).data;
+  let bits="";
+  for(let y=0;y<8;y++) for(let i=0;i<8;i++){
+    const a=gray(d,(y*9+i)*4), b=gray(d,(y*9+i+1)*4);
+    bits+=a>b?"1":"0";
+  }
+  return BigInt("0b"+bits).toString(16).padStart(16,"0");
+}
+function hamming(h1,h2){
+  let x=BigInt("0x"+h1)^BigInt("0x"+h2), n=0;
+  while(x>0n){ n+=Number(x&1n); x>>=1n; }
+  return n;
+}
+async function photoSearch(file){
+  if(!file||!$("#list")) return;
+  $("#info").textContent="Ищем похожие товары...";
+  let qh;
+  try{
+    const u=URL.createObjectURL(file);
+    qh=await dhash(u);
+    URL.revokeObjectURL(u);
+  }catch(e){
+    $("#info").textContent="Не удалось прочитать фото. Попробуйте другое.";
+    return;
+  }
+  FILTER={cat:$("#cat")?.value||null,country:$("#country")?.value||null,city:$("#city")?.value||null};
+  let req=db.from("products").select("id,title,price,min_order,photos,img_hash,cities(name)")
+    .eq("status","published").limit(300);
+  if(FILTER.cat) req=req.in("category_id",descIds(FILTER.cat));
+  if(FILTER.country) req=req.eq("country_id",FILTER.country);
+  if(FILTER.city) req=req.eq("city_id",FILTER.city);
+  const {data,error}=await req;
+  if(!$("#list")) return;
+  if(error){ $("#info").textContent="Ошибка: "+error.message; return; }
+  const items=data||[];
+  await Promise.all(items.filter(p=>!p.img_hash&&p.photos?.length).slice(0,40).map(async p=>{
+    try{ p.img_hash=await dhash(p.photos[0]); }catch(e){}
+  }));
+  const ranked=items.filter(p=>p.img_hash)
+    .map(p=>({p,d:hamming(qh,p.img_hash)}))
+    .sort((a,b)=>a.d-b.d).slice(0,12);
+  $("#info").textContent=ranked.length?"Похожие товары (сверху самые похожие):":"Похожих товаров не найдено";
+  renderCards($("#list"),ranked.map(x=>x.p));
+}
+
+// ---------- ТОВАР ----------
+function igLink(h){
+  const u=String(h||"").trim().replace(/^(https?:\/\/)?(www\.)?instagram\.com\//,"").replace(/^@/,"").replace(/\/$/,"");
+  return u?"https://instagram.com/"+encodeURIComponent(u):"";
+}
+function qtyStep(d,min){
+  QTY=Math.max(min,QTY+d);
+  $("#qtyv").textContent=QTY;
+}
+function setMain(el){
+  $("#mainimg").src=el.src;
+  document.querySelectorAll(".thumbs img").forEach(i=>i.classList.remove("on"));
+  el.classList.add("on");
+}
+async function productView(id){
+  const {data:p}=await db.from("products").select("*,cities(name),countries(name),categories(name)")
+    .eq("id",id).eq("status","published").maybeSingle();
+  if(!p){ $("#app").innerHTML='<p class="muted">Товар не найден.</p>'; return; }
+  QTY=p.min_order||1;
+  const photos=p.photos||[];
+  const fv=favs(), cv=cart();
+  const ig=igLink(p.instagram||"");
+  $("#app").innerHTML=`
+    <div class="crumbs"><a href="#/catalog">Каталог</a> · ${esc(p.categories?.name||"")}</div>
+    <div class="pwrap">
+      <div>
+        <img id="mainimg" class="main-img" src="${esc(photos[0]||"")}">
+        <div class="thumbs">${photos.map((u,i)=>`<img loading="lazy" src="${esc(u)}" class="${i?"":"on"}" onclick="setMain(this)">`).join("")}</div>
+      </div>
+      <div>
+        <div class="psub">${esc(p.categories?.name||"")} · ${esc(p.countries?.name||"")}</div>
+        <h1 class="ptitle">${esc(p.title)}</h1>
+        <div class="price">${p.price} ₽ <span class="muted" style="font-size:14px;font-weight:400">за штуку</span></div>
+        <div class="muted">Минимальный заказ: ${p.min_order} шт</div>
+        <div class="qty">
+          <button onclick="qtyStep(-1,${p.min_order})">−</button>
+          <span id="qtyv">${QTY}</span>
+          <button onclick="qtyStep(1,${p.min_order})">+</button>
+        </div>
+        <div class="acts2">
+          <button class="big" data-cart="${p.id}" onclick="addCart(${p.id},QTY)">${cv[p.id]?"В корзине ✓":"🛒 В корзину"}</button>
+          <button class="big ghost" data-fav="${p.id}" onclick="toggleFav(${p.id})">${fv.includes(p.id)?"❤️ В избранном":"🤍 В избранное"}</button>
+        </div>
+        <div class="facts">
+          <div class="fact"><b>Качество</b>${esc(p.quality||"—")}</div>
+          <div class="fact"><b>Производство</b>${esc(p.origin_country||"—")}</div>
+          <div class="fact"><b>Адрес продавца</b>${esc(p.address||"—")}</div>
+          <div class="fact"><b>Город</b>${esc(p.cities?.name||"—")}</div>
+        </div>
+        ${p.description?`<p class="desc">${esc(p.description)}</p>`:""}
+        <div class="seller">
+          <div class="muted">Продавец</div>
+          <div style="font-weight:600;margin:4px 0 10px">Свяжитесь с продавцом напрямую</div>
+          ${p.seller_phone?`<a class="btn ghost full" href="tel:${esc(p.seller_phone)}">📞 ${esc(p.seller_phone)}</a>`:""}
+          ${p.seller_email?`<a class="btn ghost full" href="mailto:${esc(p.seller_email)}">✉️ ${esc(p.seller_email)}</a>`:""}
+          ${ig?`<a class="btn ghost full" href="${esc(ig)}" target="_blank" rel="noopener">📸 Instagram</a>`:""}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ---------- КОРЗИНА ----------
+async function cartView(){
+  const cv=cart(), fv=favs();
+  const ids=[...new Set([...Object.keys(cv).map(Number),...fv])];
+  let items=[];
+  if(ids.length){
+    const {data}=await db.from("products").select("id,title,price,min_order,photos,cities(name)").in("id",ids).eq("status","published");
+    items=data||[];
+  }
+  const inCart=items.filter(p=>cv[p.id]);
+  const liked=items.filter(p=>fv.includes(p.id));
+  const total=inCart.reduce((s,p)=>s+p.price*cv[p.id],0);
+  $("#app").innerHTML=`
+    <h2>Корзина</h2>
+    ${inCart.map(p=>`
+      <div class="crow">
+        <img loading="lazy" src="${esc(p.photos?.[0]||"")}">
+        <div style="flex:1">
+          <b>${esc(p.title)}</b>
+          <div class="muted">${p.price} ₽ за штуку · мин. ${p.min_order} шт</div>
+          <input type="number" min="${p.min_order}" value="${cv[p.id]}" onchange="setQty(${p.id},this.value,${p.min_order})">
+        </div>
+        <div style="text-align:right">
+          <b>${p.price*cv[p.id]} ₽</b><br>
+          <button class="ghost" onclick="removeCart(${p.id})">Убрать</button>
+        </div>
+      </div>`).join("")||'<p class="muted">Корзина пуста</p>'}
+    ${inCart.length?`<div class="total">Итого: <b>${total} ₽</b></div><p class="muted">Оплату и доставку согласуйте с продавцом напрямую.</p>`:""}
+    <h2>Понравилось ❤️</h2>
+    ${liked.map(p=>`
+      <div class="crow">
+        <img loading="lazy" src="${esc(p.photos?.[0]||"")}">
+        <div style="flex:1"><b>${esc(p.title)}</b><div class="muted">${p.price} ₽</div></div>
+        <button onclick="go('#/product/${p.id}')">Открыть</button>
+      </div>`).join("")||'<p class="muted">Вы пока ничего не отметили</p>'}`;
+}
+
+// ---------- О НАС (6 языков) ----------
+const ABOUT={
+  ru:{name:"Русский",text:"Наш сайт только рекламирует товары и помогает вам быстрее найти то, что вам нужно. У каждого товара есть адрес и телефон продавца. Свяжитесь с продавцом сами, спросите совета и решите, покупать или нет. Мы не отвечаем за товары. Поэтому, дорогие друзья, хорошо общайтесь с продавцами сами, узнайте всё, что нужно, и только потом покупайте. Надеемся, что сайт поможет вам быстро получить то, что вам нужно. Спасибо, что вы с нами!"},
+  tj:{name:"Тоҷикӣ",text:"Сайти мо танҳо маҳсулотро рекламо мекунад ва ба шумо кӯмак мекунад, ки дар кӯтоҳтарин муддат чизҳои лозимаи худро ёбед. Дар ҳар маҳсулот суроға ва рақами телефони фурӯшанда ҳаст. Худатон ба фурӯшанда занг занед, маслиҳат гиред ва қарор диҳед, харид кунед ё не. Мо барои маҳсулот ҷавобгар нестем. Бинобар ин, дӯстони азиз, худатон бо фурӯшандагон хуб сӯҳбат кунед, ҳама чизро бипурсед ва баъд харид кунед. Умедворем, ки сайти мо ба шумо кӯмак мекунад, то зуд ба чизҳои лозимаатон расед. Раҳмат, ки бо мо ҳастед!"},
+  en:{name:"English",text:"Our website only advertises products and helps you find what you need as quickly as possible. Every product has the seller's address and phone number. Contact the seller yourself, ask for advice and decide whether to buy or not. We are not responsible for the products. So, dear friends, talk well with the sellers yourselves, find out everything you need, and only then buy. We hope our website helps you get what you need quickly. Thank you for being with us!"},
+  uz:{name:"O‘zbek",text:"Bizning sayt faqat mahsulotlarni reklama qiladi va sizga kerakli narsalarni eng qisqa muddatda topishga yordam beradi. Har bir mahsulotda sotuvchining manzili va telefon raqami bor. Sotuvchiga o‘zingiz qo‘ng‘iroq qiling, maslahat so‘rang va sotib olish yoki olmaslikni o‘zingiz hal qiling. Biz mahsulotlar uchun javobgar emasmiz. Shuning uchun, aziz do‘stlar, sotuvchilar bilan o‘zingiz yaxshi suhbatlashing, kerakli hamma narsani bilib oling va keyin sotib oling. Umid qilamizki, saytimiz sizga kerakli narsalarga tez erishishingizga yordam beradi. Biz bilan birga bo‘lganingiz uchun rahmat!"},
+  zh:{name:"中文",text:"我们的网站只负责宣传商品，帮助您尽快找到所需的东西。每件商品都有卖家的地址和电话。请您自己联系卖家，咨询意见，再决定是否购买。我们不对商品负责。因此，亲爱的朋友们，请您自己与卖家好好沟通，了解所需的一切，然后再购买。希望我们的网站能帮助您快速找到所需的东西。感谢您与我们同行！"},
+  kk:{name:"Қазақша",text:"Біздің сайт тек тауарларды жарнамалайды және сізге қажетті нәрсені мейлінше тез табуға көмектеседі. Әр тауарда сатушының мекенжайы мен телефон нөмірі бар. Сатушыға өзіңіз қоңырау шалып, кеңес алыңыз да, сатып алу-алмауды өзіңіз шешіңіз. Біз тауарлар үшін жауап бермейміз. Сондықтан, қымбатты достар, сатушылармен өзіңіз жақсы сөйлесіңіз, қажетті барлық нәрсені білген соң ғана сатып алыңыз. Біздің сайт сізге қажетті нәрселерге тез қол жеткізуге көмектеседі деп үміттенеміз. Бізбен бірге болғаныңыз үшін рахмет!"}
+};
+function aboutView(){
+  $("#app").innerHTML=`
+    <h2>О нас</h2>
+    <div class="langs">${Object.entries(ABOUT).map(([k,v])=>`<button class="${k===LANG?"on":""}" onclick="setLang('${k}')">${esc(v.name)}</button>`).join("")}</div>
+    <div class="about">${esc(ABOUT[LANG].text)}</div>`;
+}
+function setLang(k){ LANG=k; aboutView(); }
+
+// ---------- СТАРТ ----------
+updateBadges();
+route();
+</script>
+</body>
+</html>
