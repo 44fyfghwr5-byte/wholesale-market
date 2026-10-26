@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Кабинет продавца</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--p:#7c3aed;--p2:#a855f7;--bg:#f5f3ff;--ink:#1f1235}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(90deg,var(--p),var(--p2));color:#fff;padding:14px 16px;position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;z-index:5}
+header b{font-size:18px;cursor:pointer}
+header a{color:#fff;text-decoration:none;margin-left:12px;font-size:14px}
+main{padding:12px 14px 60px;max-width:640px;margin:auto}
+h2,h3{margin:16px 0 8px}
+input,select,textarea{width:100%;padding:14px;margin:6px 0;border:1px solid #d5d0e6;border-radius:12px;font-size:16px;background:#fff}
+.btn-big{display:block;width:100%;background:var(--p);color:#fff;border:0;border-radius:14px;padding:16px;font-size:17px;font-weight:600;margin:10px 0;cursor:pointer}
+.btn-ghost{display:inline-block;background:#fff;color:var(--p);border:0;border-radius:12px;padding:10px 16px;font-size:15px;font-weight:600;margin-top:10px;cursor:pointer}
+button.s{background:#6b6b80;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-size:14px;margin:4px 4px 0 0;cursor:pointer}
+button.danger{background:#dc2626}
+.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border-radius:20px;padding:20px;box-shadow:0 6px 16px #7c3aed55}
+.card{background:#fff;border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 8px #0001}
+.cat{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:14px;padding:16px;margin:8px 0;box-shadow:0 2px 6px #0001;cursor:pointer;font-weight:600;font-size:16px}
+.cat span:last-child{color:var(--p);font-size:22px}
+.crumbs{font-size:14px;color:#666;margin:6px 0 10px;word-break:break-word}
+.crumbs a{color:var(--p);text-decoration:none}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #ece8f7}
+.badge{display:inline-block;color:#fff;border-radius:10px;padding:3px 9px;font-size:12px;white-space:nowrap}
+.muted{color:#777;font-size:14px}
+.big2{font-size:18px;font-weight:700;margin:4px 0 8px}
+.warn{background:#fff7ed;border:1px solid #fdba74;border-radius:12px;padding:10px;font-size:14px;color:#9a3412;margin:8px 0}
+.pcard{position:relative;width:100%;max-width:420px;margin:12px auto;aspect-ratio:1.586;border-radius:20px;padding:20px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,#1e1b4b 0%,#6d28d9 50%,#c084fc 100%);box-shadow:0 12px 28px #6d28d966;overflow:hidden}
+.pcard:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:#ffffff1f;right:-90px;top:-110px}
+.pcard .chip{width:44px;height:32px;border-radius:7px;background:linear-gradient(135deg,#fde68a,#f59e0b)}
+.pcard .pbank{font-weight:700;font-size:15px;letter-spacing:.5px}
+.pcard .pnum{font-size:19px;letter-spacing:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.pcard .copy{position:absolute;right:14px;top:14px;background:#ffffff33;color:#fff;border:0;border-radius:10px;padding:6px 10px;font-size:13px;width:auto;cursor:pointer}
+</style>
+</head>
+<body>
+<header><b onclick="go('#/')">Кабинет продавца</b><div id="nav"></div></header>
+<main id="app">Загрузка...</main>
+<script>
+const SB_URL="https://fwvvnzrprjffsmkpvhrl.supabase.co";
+const SB_KEY="sb_publishable_wJYMx4Gs-NlZXUBFedcVaQ_H30wRYUz";
+const SITE=location.origin+location.pathname;
+const CARD_NUMBER="5058270378663669";
+const CARD_BANK="Душанбе Сити";
+const FEE_TEXT="1 сомони";
+const ST={
+  pending_review:["Заявка на проверке","#2563eb"],
+  published:["Опубликован","#16a34a"],
+  rejected:["Отклонён","#dc2626"],
+  awaiting_payment:["Не отправлен","#d97706"],
+  draft:["Черновик","#777"]
+};
+const ERR=[
+  ["already registered","Этот email уже зарегистрирован. Нажмите «Войти»."],
+  ["Invalid login credentials","Неверный email или пароль."],
+  ["Email not confirmed","Email не подтверждён. Проверьте почту."],
+  ["at least 6","Пароль должен быть не короче 6 символов."],
+  ["For security purposes","Слишком частые запросы. Подождите минуту."],
+  ["rate limit","Слишком много писем. Попробуйте позже."]
+];
+const errText=e=>{const m=e?.message||"";const f=ERR.find(([k])=>m.includes(k));return f?f[1]:"Ошибка: "+m;};
+
+const db=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const go=h=>{ if(location.hash===h) route(); else location.hash=h; };
+let user=null, CATS=[], COUNTRIES=[], CITIES=[];
+let recovery=location.hash.includes("type=recovery");
+
+// ---------- СТАРТ ----------
+async function init(){
+  const {data}=await db.auth.getSession();
+  user=data.session?.user||null;
+  if(user && await isAdmin()) return location.replace("../admin/");
+  renderNav();
+  window.addEventListener("hashchange",()=>route());
+  await loadRefs();
+  route();
+}
+async function isAdmin(){
+  const {data}=await db.from("admins").select("user_id").eq("user_id",user.id);
+  return !!(data&&data.length);
+}
+function renderNav(){
+  $("#nav").innerHTML=user
+    ?`<a href="../">Сайт</a><a href="#" onclick="logout();return false">Выход</a>`
+    :`<a href="../">Сайт</a>`;
+}
+async function logout(){
+  await db.auth.signOut();
+  user=null; renderNav(); location.hash="#/"; route();
+}
+async function route(){
+  if(recovery) return recoveryView();
+  if(!user) return loginView();
+  const [,page,arg]=(location.hash||"#/").split("/");
+  if(page==="cats") return catsView(arg?+arg:null);
+  if(page==="new") return productForm(null,+arg);
+  if(page==="edit") return productForm(+arg,null);
+  return homeView();
+}
+async function loadRefs(){
+  const [{data:cats},{data:countries},{data:cities}]=await Promise.all([
+    db.from("categories").select("*").order("name"),
+    db.from("countries").select("*").order("name"),
+    db.from("cities").select("*").order("name")
+  ]);
+  CATS=cats||[]; COUNTRIES=countries||[]; CITIES=cities||[];
+}
+function countryOptions(sel){
+  return COUNTRIES.map(k=>`<option value="${k.id}" ${k.id==sel?"selected":""}>${esc(k.name)}</option>`).join("");
+}
+function cityOptions(countryId,sel){
+  return CITIES.filter(c=>!countryId||c.country_id==countryId)
+    .map(c=>`<option value="${c.id}" ${c.id==sel?"selected":""}>${esc(c.name)}</option>`).join("");
+}
+function fillCities(){
+  const k=$("#c_country").value;
+  $("#c_city").innerHTML=`<option value="">Город</option>${k?cityOptions(k,null):""}`;
+}
+
+// ---------- ВХОД, РЕГИСТРАЦИЯ, ПАРОЛЬ ----------
+function loginView(){
+  $("#app").innerHTML=`
+    <div class="card">
+      <h3>Вход продавца</h3>
+      <input id="em" type="email" placeholder="Email">
+      <input id="pw" type="password" placeholder="Пароль (не короче 6 символов)">
+      <button class="btn-big" onclick="login()">Войти</button>
+      <button class="btn-ghost" onclick="register()">Зарегистрироваться</button>
+      <p><a href="#" onclick="forgot();return false">Забыли пароль?</a></p>
+      <p id="msg" class="muted"></p>
+    </div>`;
+}
+async function login(){
+  const {data,error}=await db.auth.signInWithPassword({email:$("#em").value.trim(),password:$("#pw").value});
+  if(error){ $("#msg").textContent=errText(error); return; }
+  user=data.user;
+  if(await isAdmin()) return location.replace("../admin/");
+  renderNav(); go("#/");
+}
+async function register(){
+  const email=$("#em").value.trim(), password=$("#pw").value;
+  if(!email||password.length<6){ $("#msg").textContent="Введите email и пароль (не короче 6 символов)."; return; }
+  const {data,error}=await db.auth.signUp({email,password});
+  if(error){ $("#msg").textContent=errText(error); return; }
+  if(!data.session){ $("#msg").textContent="Аккаунт создан. Нажмите «Войти»."; return; }
+  user=data.user; renderNav(); go("#/");
+}
+async function forgot(){
+  const email=$("#em").value.trim();
+  if(!email){ $("#msg").textContent="Сначала введите email."; return; }
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:SITE});
+  if(error){ $("#msg").textContent=errText(error); return; }
+  $("#msg").textContent="Ссылка для смены пароля отправлена на "+email+".";
+}
+function recoveryView(){
+  $("#app").innerHTML=`
+    <div class="card">
+      <h3>Новый пароль</h3>
+      <input id="np" type="password" placeholder="Новый пароль (не короче 6 символов)">
+      <button class="btn-big" onclick="setNewPassword()">Сохранить пароль</button>
+      <p id="msg" class="muted"></p>
+    </div>`;
+}
+async function setNewPassword(){
+  const p=$("#np").value;
+  if(p.length<6){ $("#msg").textContent="Пароль должен быть не короче 6 символов."; return; }
+  const {data,error}=await db.auth.updateUser({password:p});
+  if(error){ $("#msg").textContent=errText(error); return; }
+  user=data.user; recovery=false;
+  history.replaceState(null,"",location.pathname+"#/");
+  renderNav(); route();
+}
+async function changePassword(){
+  const p=$("#npw").value, m=$("#pmsg");
+  if(p.length<6){ m.textContent="Пароль должен быть не короче 6 символов."; return; }
+  const {error}=await db.auth.updateUser({password:p});
+  m.textContent=error?errText(error):"Пароль изменён.";
+  if(!error) $("#npw").value="";
+}
+
+// ---------- ГЛАВНАЯ КАБИНЕТА ----------
+async function homeView(){
+  const {data:prods}=await db.from("products")
+    .select("id,title,price,status").eq("seller_id",user.id).order("created_at",{ascending:false});
+  $("#app").innerHTML=`
+    <div class="hero">
+      <div style="font-size:20px;font-weight:700">Ваши товары</div>
+      <div style="font-size:14px;opacity:.9;margin-top:6px">Каждый товар публикуется после проверки. Стоимость публикации — ${FEE_TEXT}.</div>
+    </div>
+    <button class="btn-big" onclick="go('#/cats')">+ Добавить товар</button>
+    <h3>Мои товары</h3>
+    ${(prods||[]).map(prodRow).join("")||'<p class="muted">Пока нет товаров. Нажмите «Добавить товар».</p>'}
+    <h3>Аккаунт</h3>
+    <div class="card">
+      <input id="npw" type="password" placeholder="Новый пароль (не короче 6 символов)">
+      <button class="btn-ghost" onclick="changePassword()">Сменить пароль</button>
+      <p id="pmsg" class="muted"></p>
+    </div>`;
+}
+function prodRow(p){
+  const [label,color]=ST[p.status]||[p.status,"#777"];
+  let b="";
+  if(p.status==="published") b+=`<button class="s" onclick="go('#/edit/${p.id}')">Цена и данные</button>`;
+  if(["rejected","awaiting_payment","draft"].includes(p.status)) b+=`<button class="s" onclick="go('#/edit/${p.id}')">Исправить и отправить снова</button>`;
+  if(p.status==="pending_review") b+=`<span class="muted">Ответ: 5–30 минут</span>`;
+  if(p.status!=="pending_review") b+=`<button class="s danger" onclick="delProduct(${p.id})">Удалить</button>`;
+  return `<div class="card">
+    <div class="row" style="border:0;padding:0"><b>${esc(p.title)}</b><span class="badge" style="background:${color}">${label}</span></div>
+    <div class="muted">${p.price} ₽</div>
+    <div>${b}</div>
+  </div>`;
+}
+async function delProduct(id){
+  if(!confirm("Удалить товар?")) return;
+  const {error}=await db.from("products").delete().eq("id",id);
+  if(error) return alert("Ошибка: "+error.message);
+  route();
+}
+
+// ---------- ВЫБОР КАТЕГОРИИ (только выбор, без изменения) ----------
+async function catsView(parent){
+  await loadRefs();
+  const current=parent?CATS.find(c=>c.id===parent):null;
+  const children=CATS.filter(c=>(c.parent_id??null)===(parent??null));
+  const crumbs=[]; let cur=current;
+  while(cur){ crumbs.unshift(cur); cur=CATS.find(c=>c.id===cur.parent_id); }
+  const isLeaf=!!current&&!CATS.some(c=>c.parent_id===current.id);
+  $("#app").innerHTML=`
+    <div class="crumbs"><a href="#/">← Кабинет</a> · <a href="#/cats">Категории</a>${crumbs.map(c=>` › <a href="#/cats/${c.id}">${esc(c.name)}</a>`).join("")}</div>
+    ${isLeaf
+      ? `<div class="card"><div class="muted">Товар будет добавлен в категорию</div>
+          <div class="big2">${esc(current.name)}</div>
+          <button class="btn-big" onclick="go('#/new/${current.id}')">Добавить товар сюда</button></div>`
+      : `<p class="muted">${current?`Выберите подкатегорию в «${esc(current.name)}»:`:"Выберите категорию товара:"}</p>
+         ${children.map(c=>`<div class="cat" onclick="go('#/cats/${c.id}')"><span>${esc(c.name)}</span><span>›</span></div>`).join("")||'<p class="muted">Здесь пока пусто. Категории добавляет владелец сайта.</p>'}`}`;
+}
+
+// ---------- ФОРМА ТОВАРА ----------
+function payBlock(){
+  return `
+    <h3>Оплата публикации: ${FEE_TEXT}</h3>
+    <div class="pcard">
+      <button class="copy" onclick="copyCard()">Копировать</button>
+      <div class="chip"></div>
+      <div class="pbank">${esc(CARD_BANK)}</div>
+      <div class="pnum">${CARD_NUMBER.replace(/(.{4})/g,"$1 ").trim()}</div>
+    </div>
+    <div class="warn">Переведите <b>${FEE_TEXT}</b> на эту карту. В комментарии к переводу обязательно напишите название товара, например: <b>«Футболка сурх»</b>. Без этого заявка не будет принята.</div>
+    <input id="pc" placeholder="Комментарий к переводу (название товара)">
+    <p class="muted">Скриншот чека:</p>
+    <input id="rc" type="file" accept="image/*">`;
+}
+async function copyCard(){
+  try{ await navigator.clipboard.writeText(CARD_NUMBER); alert("Номер карты скопирован."); }
+  catch(e){ alert("Номер карты: "+CARD_NUMBER); }
+}
+async function productForm(id,catId){
+  await loadRefs();
+  let p={};
+  if(id){
+    const {data}=await db.from("products").select("*").eq("id",id).maybeSingle();
+    if(!data||data.seller_id!==user.id) return go("#/");
+    if(data.status==="pending_review"){ alert("Заявка уже на проверке. Ждите ответа."); return go("#/"); }
+    p=data;
+  }
+  const categoryId=id?p.category_id:catId;
+  const cat=CATS.find(c=>c.id===categoryId);
+  if(!cat) return go("#/cats");
+  const published=!!id&&p.status==="published";
+  $("#app").innerHTML=`
+    <div class="crumbs"><a href="#/">← Кабинет</a></div>
+    <h3>${id?"Изменить товар":"Новый товар"}</h3>
+    <div class="card">
+      <div class="muted">Категория</div>
+      <div class="big2">${esc(cat.name)}</div>
+      <input id="t" placeholder="Название товара" value="${esc(p.title)}">
+      <textarea id="d" rows="3" placeholder="Описание">${esc(p.description)}</textarea>
+      <input id="q" placeholder="Качество (например: премиум, 1 сорт)" value="${esc(p.quality)}">
+      <input id="o" placeholder="Страна производства" value="${esc(p.origin_country)}">
+      <input id="ad" placeholder="Адрес (склад / пункт выдачи)" value="${esc(p.address)}">
+      <select id="c_country" onchange="fillCities()"><option value="">Страна продажи</option>${countryOptions(p.country_id)}</select>
+      <select id="c_city"><option value="">Город</option>${p.country_id?cityOptions(p.country_id,p.city_id):""}</select>
+      <input id="pr" type="number" placeholder="Цена за штуку, ₽" value="${p.price??""}">
+      <input id="mo" type="number" placeholder="Минимальный заказ, шт" value="${p.min_order??""}">
+      <input id="ph" type="tel" placeholder="Телефон" value="${esc(p.seller_phone)}">
+      <input id="em" type="email" placeholder="Email" value="${esc(p.seller_email)}">
+      <input id="ig" placeholder="Instagram (необязательно)" value="${esc(p.instagram)}">
+      ${published
+        ? '<p class="muted">Фото опубликованного товара менять нельзя.</p>'
+        : `<p class="muted">Фото: от 3 до 6 из галереи телефона${id?" (новые заменят старые, если выберете)":""}.</p>
+           <input id="files" type="file" accept="image/*" multiple>`}
+    </div>
+    ${published ? "" : `<div class="card">${payBlock()}</div>`}
+    <button class="btn-big" onclick="saveProduct(${id?id:"null"},${categoryId},${published})">${published?"Сохранить":"Отправить заявку"}</button>
+    <p id="msg" class="muted"></p>`;
+}
+async function uploadOne(bucket,file,path){
+  const {error}=await db.storage.from(bucket).upload(path,file,{contentType:file.type||"image/jpeg"});
+  if(error) throw new Error(error.message);
+  return path;
+}
+async function uploadDrafts(files){
+  const out=[];
+  for(const [i,f] of files.entries()){
+    out.push(await uploadOne("product-drafts",f,`${user.id}/${Date.now()}_${i}.jpg`));
+  }
+  return out;
+}
+async function saveProduct(id,catId,published){
+  const msg=$("#msg");
+  const v=s=>($(s)?.value??"").trim();
+  const title=v("#t"), desc=v("#d"), quality=v("#q"), origin=v("#o"), address=v("#ad");
+  const country=+$("#c_country").value, city=+$("#c_city").value;
+  const price=+$("#pr").value, min=+$("#mo").value;
+  const phone=v("#ph"), email=v("#em"), ig=v("#ig");
+  const files=$("#files")?[...$("#files").files]:[];
+  if(!title||!price||!min||!country||!city||!quality||!origin||!address){
+    msg.textContent="Заполните название, качество, страну производства, адрес, страну, город, цену и минимальный заказ."; return;
+  }
+  if(!phone&&!email){ msg.textContent="Укажите телефон или email для связи."; return; }
+  const fields={title,description:desc||null,category_id:catId,country_id:country,city_id:city,price,min_order:min,
+    quality,origin_country:origin,address,seller_phone:phone||null,seller_email:email||null,instagram:ig||null};
+  msg.textContent="Отправляем...";
+  try{
+    if(published){
+      const {error}=await db.from("products").update(fields).eq("id",id);
+      if(error) throw new Error(error.message);
+      alert("Изменения сохранены."); return go("#/");
+    }
+    if(files.length&&(files.length<3||files.length>6)) throw new Error("фото: от 3 до 6");
+    const receipt=$("#rc")?.files[0], comment=v("#pc");
+    if(!receipt) throw new Error("загрузите скриншот чека");
+    if(!comment) throw new Error("в комментарии к переводу напишите название товара");
+    let drafts=null;
+    if(files.length) drafts=await uploadDrafts(files);
+    if(!drafts){
+      if(!id) throw new Error("загрузите от 3 до 6 фото");
+      const {data:old}=await db.from("products").select("draft_photos").eq("id",id).maybeSingle();
+      if((old?.draft_photos?.length||0)<3) throw new Error("загрузите от 3 до 6 фото");
+    }
+    const receiptPath=await uploadOne("receipts",receipt,`${user.id}/fee_${Date.now()}.jpg`);
+    const common={...fields,status:"pending_review",receipt_url:receiptPath,payment_comment:comment,owner_email:user.email};
+    if(!id){
+      const {error}=await db.from("products").insert({...common,seller_id:user.id,draft_photos:drafts});
+      if(error) throw new Error(error.message);
+    } else {
+      const row={...common};
+      if(drafts){
+        const {data:old}=await db.from("products").select("draft_photos").eq("id",id).maybeSingle();
+        row.draft_photos=drafts;
+        if(old?.draft_photos?.length) await db.storage.from("product-drafts").remove(old.draft_photos);
+      }
+      const {error}=await db.from("products").update(row).eq("id",id);
+      if(error) throw new Error(error.message);
+    }
+    alert("Заявка отправлена. Ответ: 5–30 минут.");
+    go("#/");
+  }catch(err){
+    msg.textContent="Ошибка: "+err.message;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
