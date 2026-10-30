@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0a0a">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://fwvvnzrprjffsmkpvhrl.supabase.co; base-uri 'self'; form-action 'self'">
+<title>Архив чатов · 700 OPTOM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--r:#dc2626;--r2:#ef4444;--rd:#7f1d1d;--k:#0a0a0a;--card:#141414;--card2:#1c1c1c;--line:#2a2a2a;--t:#f5f5f5;--m:#a3a3a3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--k);color:var(--t);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(10,10,10,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.back{width:40px;height:40px;border-radius:12px;background:var(--card2);border:1px solid var(--line);color:var(--t);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 40px}
+.ttl{font-family:Unbounded,Inter,sans-serif;font-weight:900;font-size:18px;letter-spacing:-.5px}
+.ttl small{display:block;font-family:Inter,sans-serif;font-size:10px;letter-spacing:3px;color:var(--m);font-weight:700}
+.wrap{max-width:620px;margin:0 auto;padding:12px 14px 30px}
+input{width:100%;padding:13px;margin:6px 0;border:1px solid var(--line);border-radius:14px;font-size:16px;background:var(--card2);color:var(--t);font-family:inherit}
+input:focus{outline:none;border-color:var(--r)}
+.btn{display:block;width:100%;background:var(--r);color:#fff;border:0;border-radius:14px;padding:14px;font-size:15px;font-weight:800;margin:8px 0;cursor:pointer;font-family:inherit}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
+.item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin:8px 0;cursor:pointer}
+.item:active{border-color:var(--r)}
+.row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15px}
+.row1 b{font-weight:800}
+.arrow{color:var(--r2);font-weight:900}
+.muted{color:var(--m);font-size:13px;line-height:1.5;word-break:break-all}
+.err{color:var(--r2);font-size:14px;font-weight:700;margin-top:8px}
+.link{background:none;border:0;color:var(--r2);font-weight:800;font-size:14px;cursor:pointer;padding:8px 0;font-family:inherit}
+.ttl2{font-size:16px;margin:12px 0 4px;line-height:1.5}
+.log{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px;min-height:50vh;display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.msg{max-width:84%;padding:9px 12px;border-radius:16px;font-size:15px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere}
+.msg.s{align-self:flex-end;background:var(--r);color:#fff;border-bottom-right-radius:4px}
+.msg.b{align-self:flex-start;background:var(--card2);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg img{display:block;max-width:100%;max-height:260px;border-radius:12px;margin-bottom:6px}
+.who{font-size:11px;opacity:.7;margin-bottom:4px;font-weight:700}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="back" id="backBtn" aria-label="Назад">←</button>
+  <div class="ttl">Архив чатов<small>ТОЛЬКО ДЛЯ АДМИНИСТРАТОРА</small></div>
+</header>
+<main class="wrap" id="app"></main>
+<script>
+const SB_URL="https://fwvvnzrprjffsmkpvhrl.supabase.co";
+const SB_KEY="sb_publishable_wJYMx4Gs-NlZXUBFedcVaQ_H30wRYUz";
+const db=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=t=>new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+const linkify=s=>esc(s).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:#fca5a5">$1</a>');
+
+let THREADS=[], CUR=null;
+
+$("#backBtn").onclick=()=>{ location.href="../"; };
+
+async function init(){
+  const {data}=await db.auth.getSession();
+  const user=data.session?.user;
+  if(!user) return loginView();
+  const {data:a}=await db.from("admins").select("user_id").eq("user_id",user.id);
+  if(!a||!a.length) return location.replace("../../");
+  listView();
+}
+function loginView(){
+  $("#app").innerHTML=`<div class="card">
+    <input id="em" type="email" placeholder="Email">
+    <input id="pw" type="password" placeholder="Пароль">
+    <button class="btn" id="lbtn" onclick="login()">Войти</button>
+    <p id="lmsg" class="err"></p>
+  </div>`;
+}
+async function login(){
+  const btn=$("#lbtn"); btn.disabled=true;
+  const {error}=await db.auth.signInWithPassword({email:$("#em").value.trim(),password:$("#pw").value});
+  btn.disabled=false;
+  if(error){ $("#lmsg").textContent="Неверный email или пароль."; return; }
+  init();
+}
+async function listView(){
+  CUR=null;
+  $("#app").innerHTML=`<input id="q" placeholder="Поиск: имя или email" oninput="filterList()">
+    <div id="list"><p class="muted">Загрузка...</p></div>`;
+  const {data,error}=await db.rpc("admin_threads");
+  if(error){ $("#list").innerHTML=`<p class="err">${esc(error.message)}</p>`; return; }
+  THREADS=data||[];
+  filterList();
+}
+function filterList(){
+  const q=($("#q")?.value||"").trim().toLowerCase();
+  const list=THREADS.filter(t=>!q||[t.seller_name,t.seller_email,t.buyer_name,t.buyer_email]
+    .some(x=>(x||"").toLowerCase().includes(q)));
+  $("#list").innerHTML=list.map(t=>`<div class="item" onclick="openThread(${t.thread_id})">
+      <div class="row1"><b>${esc(t.seller_name||"Продавец")}</b><span class="arrow">↔</span><b>${esc(t.buyer_name||"Покупатель")}</b></div>
+      <div class="muted">Продавец: ${esc(t.seller_email||"—")}</div>
+      <div class="muted">Покупатель: ${esc(t.buyer_email||"—")}</div>
+      <div class="muted">Сообщений: ${t.msg_count} · последнее: ${t.last_at?fmt(t.last_at):"—"}</div>
+    </div>`).join("")||'<p class="muted">Диалогов нет</p>';
+}
+async function openThread(id){
+  CUR=THREADS.find(t=>t.thread_id===id);
+  if(!CUR) return;
+  $("#app").innerHTML=`<button class="link" onclick="listView()">← К списку диалогов</button>
+    <div class="ttl2"><b>${esc(CUR.seller_name||"Продавец")}</b> ↔ <b>${esc(CUR.buyer_name||"Покупатель")}</b></div>
+    <div class="muted">${esc(CUR.seller_email||"")} · ${esc(CUR.buyer_email||"")}</div>
+    <div class="log" id="log"><p class="muted" style="margin:auto">Загрузка...</p></div>`;
+  const {data,error}=await db.from("chat_archive")
+    .select("message_id,sender_id,body,attachment,created_at")
+    .eq("thread_id",id).order("created_at").limit(1000);
+  const log=$("#log"); if(!log) return;
+  if(error){ log.innerHTML=`<p class="err">${esc(error.message)}</p>`; return; }
+  log.innerHTML=(data||[]).map(m=>{
+    const seller=m.sender_id===CUR.seller_id;
+    return `<div class="msg ${seller?"s":"b"}">
+      <div class="who">${seller?"Продавец":"Покупатель"} · ${fmt(m.created_at)}</div>
+      ${m.attachment?`<img src="${esc(m.attachment)}">`:""}
+      ${m.body?linkify(m.body):""}
+    </div>`;
+  }).join("")||'<p class="muted" style="margin:auto">Сообщений нет</p>';
+}
+init();
+</script>
+</body>
+</html>
