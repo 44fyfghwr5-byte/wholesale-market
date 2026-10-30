@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0a0a">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://fwvvnzrprjffsmkpvhrl.supabase.co; base-uri 'self'; form-action 'self'">
+<title>Админ · 700 OPTOM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--r:#dc2626;--r2:#ef4444;--rd:#7f1d1d;--k:#0a0a0a;--g1:#151515;--g2:#1e1e1e;--g3:#262626;--line:#2c2c2c;--t:#f5f5f5;--m:#9ca3af;--ok:#16a34a;--gold:#facc15}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--k);color:var(--t);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding-bottom:76px}
+body.nologin{padding-bottom:0}
+body.nologin .bottom{display:none}
+.wrap{max-width:560px;margin:0 auto;padding:10px 12px 18px;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes sp{to{transform:rotate(360deg)}}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:2px 0 8px}
+.who{font-size:10px;letter-spacing:2.5px;color:var(--m);font-weight:700;text-transform:uppercase}
+.who b{color:var(--r2);font-weight:800}
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:18px 18px 16px;background:linear-gradient(145deg,#1d1d1d 0%,#0d0d0d 55%,#000 100%);border:1px solid #2a2a2a;box-shadow:0 14px 34px #000a}
+.hero:before{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,#dc262645,transparent 65%);right:-90px;top:-110px}
+.hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent,var(--r),transparent)}
+.logo{position:relative;font-family:Unbounded,Inter,sans-serif;font-weight:900;font-size:50px;letter-spacing:-2px;line-height:.9}
+.logo span{background:linear-gradient(90deg,#fff,#9ca3af 50%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo small{display:block;font-family:Inter,sans-serif;font-size:10px;letter-spacing:6px;color:var(--r2);font-weight:800;margin-top:8px}
+.stats{display:grid;gap:7px;margin:10px 0}
+.stat{background:var(--g1);border:1px solid var(--line);border-radius:13px;padding:9px 13px;display:flex;justify-content:space-between;align-items:center}
+.stat span{color:var(--m);font-size:12px;font-weight:600}
+.stat b{font-family:Unbounded,Inter,sans-serif;font-size:16px;font-weight:900;color:#fff}
+.stat b.red{color:var(--r2)}
+h3{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.9px;color:var(--m);margin:14px 0 6px}
+.card{background:var(--g1);border:1px solid var(--line);border-radius:15px;padding:11px;margin:7px 0}
+.row2{display:flex;align-items:center;gap:8px;background:var(--g1);border:1px solid var(--line);border-radius:13px;padding:8px 10px;margin:6px 0}
+.row2.pointer{cursor:pointer}
+.cn{flex:1;min-width:0}
+.cn b{display:block;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cnt{background:var(--g3);border-radius:999px;padding:3px 9px;font-size:11px;font-weight:800;color:#fff}
+.muted{color:var(--m);font-size:12px;line-height:1.45;word-break:break-all}
+.err{color:#fca5a5;font-size:13px;font-weight:700;margin-top:6px}
+.btn{display:block;width:100%;background:var(--r);color:#fff;border:0;border-radius:11px;padding:9px 11px;font-size:12px;font-weight:800;margin:5px 0;cursor:pointer;font-family:inherit;text-align:center;box-shadow:0 3px 10px #dc262630;transition:background .2s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn.sm{display:inline-block;width:auto;padding:6px 10px;font-size:11px;border-radius:9px;margin:0}
+.btn.n{background:var(--g3);border:1px solid #333;box-shadow:none;color:var(--t)}
+.btn.g{background:var(--ok);box-shadow:0 3px 10px #16a34a40}
+.btn.x{background:#7f1d1d;box-shadow:none}
+.btn.busy{background:#4b4b4b!important}
+.btn.fail{background:#7f1d1d!important}
+.btn:disabled{cursor:default}
+.ok{background:var(--ok)!important}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px;margin-right:6px}
+.sel{background:var(--g3);color:var(--t);border:1px solid #333;border-radius:9px;padding:6px 8px;font-size:11px;font-family:inherit;font-weight:700}
+input,select,textarea{width:100%;padding:10px 11px;margin:5px 0;border:1px solid var(--line);border-radius:11px;font-size:14px;background:var(--g2);color:var(--t);font-family:inherit}
+input::placeholder,textarea::placeholder{color:#5f6470}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--r)}
+.bad{border-color:var(--r)!important;box-shadow:0 0 0 2px #dc262633}
+.ferr{color:#fca5a5;font-size:11px;font-weight:700;margin:-3px 2px 5px}
+.ar{display:flex;gap:6px;align-items:center}
+.ar input{flex:1;margin:0}
+.pills{display:flex;gap:6px;margin:8px 0}
+.pill{flex:1;position:relative;background:var(--g1);border:1px solid var(--line);color:var(--m);border-radius:11px;padding:8px 6px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit}
+.pill.on{background:var(--r);color:#fff;border-color:var(--r)}
+.bd,.bd2{background:var(--r2);color:#fff;font-size:9px;font-weight:800;border-radius:999px;padding:1px 5px;min-width:15px;line-height:13px;text-align:center}
+.bd{position:absolute;top:-5px;right:-3px}
+.bd:empty,.bd2:empty{display:none}
+.bd2{display:inline-block;margin-left:6px}
+.item{background:var(--g1);border:1px solid var(--line);border-radius:13px;padding:9px 10px;margin:6px 0;cursor:pointer}
+.item:active{border-color:var(--r)}
+.it{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.prev{margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--m);font-size:12px}
+.req{background:var(--g1);border:1px solid var(--line);border-left:3px solid var(--r);border-radius:14px;padding:10px;margin:7px 0}
+.rt{font-size:10px;color:var(--r2);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.rb{font-size:14px;font-weight:800;margin:3px 0}
+.note{background:#1a0a0a;border:1px solid #3b1212;border-radius:10px;padding:6px 8px;margin:6px 0;font-size:12px}
+.gal{display:flex;gap:6px;overflow-x:auto;margin:6px 0}
+.gal img{flex:0 0 auto;width:64px;height:64px;object-fit:cover;border-radius:9px;background:var(--g2)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px}
+.prod{background:var(--g1);border:1px solid var(--line);border-radius:14px;padding:9px;margin:6px 0}
+.prow{display:flex;gap:9px;align-items:center}
+.prow img,.prow .ph{width:50px;height:50px;border-radius:10px;object-fit:cover;background:var(--g2);flex:0 0 50px;display:flex;align-items:center;justify-content:center}
+.pinfo{flex:1;min-width:0}
+.pinfo b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crumbs{font-size:12px;color:var(--m);margin:4px 0 8px}
+.crumbs a{color:var(--r2);text-decoration:none;font-weight:700}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{position:relative;border-radius:15px;background:var(--g1);border:1px solid var(--line);aspect-ratio:1.5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;overflow:hidden;background-size:cover;background-position:center}
+.tile span{font-size:22px}
+.tile b{font-size:12px;font-weight:800;padding:0 6px}
+.tile.img:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 30%,#000d 100%)}
+.tile.img b{position:relative;z-index:1;align-self:flex-end;padding-bottom:8px}
+.catrow{display:flex;align-items:center;gap:9px;background:var(--g1);border:1px solid var(--line);border-radius:13px;padding:7px;margin:6px 0}
+.ci{width:44px;height:44px;border-radius:11px;background:var(--g2);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;flex:0 0 44px}
+.ci img{width:100%;height:100%;object-fit:cover}
+.ctl{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.s{background:var(--g3);color:var(--t);border:1px solid #333;border-radius:9px;padding:5px 8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.s.no{color:#fca5a5}
+.s:disabled{opacity:.3;cursor:default}
+.pill-s{display:inline-block;background:var(--g2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:11px;color:var(--m);margin-bottom:6px}
+.pill-s b{color:var(--t)}
+.drop{border:1px dashed #3a3a3a;border-radius:13px;padding:9px;background:var(--g2)}
+.drop.bad{border-color:var(--r)}
+.addph{display:flex;align-items:center;justify-content:center;background:var(--r);color:#fff;border-radius:11px;padding:10px;font-weight:800;cursor:pointer;font-size:12px}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.thumbs:empty{display:none}
+.th{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th .x{position:absolute;top:3px;right:3px;background:#000c;color:#fff;border:0;border-radius:999px;width:20px;height:20px;cursor:pointer;font-size:12px;padding:0}
+.th .cv{position:absolute;left:3px;bottom:3px;background:var(--r);color:#fff;font-size:9px;font-weight:800;border-radius:5px;padding:1px 5px}
+.log{background:var(--g1);border:1px solid var(--line);border-radius:15px;padding:8px;height:44vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.msg{max-width:82%;padding:7px 10px;border-radius:13px;font-size:13px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere}
+.msg.b{align-self:flex-start;background:var(--g3);border:1px solid #333;border-bottom-left-radius:4px}
+.msg.a{align-self:flex-end;background:linear-gradient(135deg,var(--r),var(--rd));color:#fff;border-bottom-right-radius:4px}
+.msg img{display:block;max-width:100%;max-height:200px;border-radius:9px;margin-bottom:4px}
+.msg .who{font-size:9px;opacity:.7;margin-bottom:3px;letter-spacing:.5px}
+.msg a{color:#fca5a5}
+.rform{display:flex;gap:6px;align-items:flex-end;margin-top:8px}
+.rform textarea{flex:1;height:40px;margin:0;resize:none}
+.rform .btn{width:auto;margin:0;padding:10px 13px}
+.tierbtns{display:flex;gap:5px;flex-wrap:wrap}
+.bottom{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:560px;bottom:0;z-index:25;background:#0b0b0b;border-top:1px solid #222;display:flex;justify-content:space-around;padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px))}
+.bottom a{flex:1;text-align:center;text-decoration:none;color:var(--m);position:relative;padding:1px 0}
+.bottom a i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:16px;height:30px;width:44px;margin:0 auto;border-radius:12px;background:#151515;border:1px solid #222}
+.bottom a span{display:block;font-size:9px;font-weight:700;margin-top:3px;letter-spacing:.3px}
+.bottom a.on{color:var(--r2)}
+.bottom a.on i{background:var(--r);border-color:var(--r);color:#fff}
+.bottom .bd{top:-3px;left:calc(50% + 6px);right:auto}
+.sheet{position:fixed;inset:0;background:#000b;display:none;z-index:40;align-items:flex-end;justify-content:center}
+.sheet.open{display:flex}
+.sbox{background:var(--g1);border:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-width:560px;padding:18px;animation:fi .2s ease}
+.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(-120px);top:12px;z-index:60;background:var(--g2);border:1px solid var(--line);color:var(--t);padding:10px 14px;border-radius:13px;font-size:13px;font-weight:700;transition:transform .3s;max-width:92%;box-shadow:0 10px 26px #0009;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:var(--rd);color:#fecaca}
+.toast.ok{border-color:#14532d;color:#bbf7d0}
+</style>
+</head>
+<body class="nologin">
+<div id="app"></div>
+<nav class="bottom" id="bottom">
+  <a href="#" data-t="home" onclick="show('home');return false"><i>🏘️</i><span>Хона</span></a>
+  <a href="#" data-t="cat" onclick="show('cat');return false"><i>＋</i><span>Каталог</span></a>
+  <a href="#" data-t="chat" onclick="show('chat');return false"><i>💬</i><span>Чат</span><b class="bd" id="bdChat"></b></a>
+  <a href="#" data-t="more" onclick="show('more');return false"><i>⚙️</i><span>Ещё</span></a>
+</nav>
+<div id="sheet" class="sheet" onclick="if(event.target.id==='sheet')closeSheet()"><div class="sbox" id="sbox"></div></div>
+<div id="toast" class="toast"></div>
+<script>
+const SB_URL="https://fwvvnzrprjffsmkpvhrl.supabase.co";
+const SB_KEY="sb_publishable_wJYMx4Gs-NlZXUBFedcVaQ_H30wRYUz";
+const db=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=t=>new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+const fdate=t=>new Date(t).toLocaleDateString("ru-RU");
+const DAY=86400000;
+function ago(t){
+  const d=Math.floor((Date.now()-new Date(t))/DAY);
+  if(d<1) return "сегодня";
+  if(d<7) return d+" дн. назад";
+  if(d<30) return Math.floor(d/7)+" нед. назад";
+  if(d<365) return Math.floor(d/30)+" мес. назад";
+  return Math.floor(d/365)+" г. назад";
+}
+const ADMIN_NAME="NAVRUZ", PHOTO_MONTHS=5, FEE=1;
+const TIERS=[[0,"Обычный"],[1,"TOP"],[2,"TOP+"],[3,"VIP+"]];
+const tierOptions=sel=>TIERS.map(([v,l])=>`<option value="${v}" ${(sel||0)===v?"selected":""}>${l}</option>`).join("");
+const tierName=v=>(TIERS.find(t=>t[0]===(v||0))||TIERS[0])[1];
+const STATUS={pending_review:"На проверке",published:"Опубликован",rejected:"Отклонён",awaiting_payment:"Не отправлен",draft:"Черновик"};
+const ICON={"Женщинам":"👗","Мужчинам":"👔","Детям":"🧸","Обувь":"👟","Аксессуары":"👜","Электроника":"📱","Дом и уют":"🏠","Красота и гигиена":"💄","Спорт и отдых":"🏋️","Игрушки":"🧩","Продукты питания":"🥫"};
+const icon=n=>ICON[n]||"🛍️";
+
+let user=null, CATS=[], COUNTRIES=[], CITIES=[], SELLERS=[], TIMER=null, TAB="home", CHAN="seller", OPEN=null;
+let CHATS=[], PENDING=[], PHOTOS=[], ARCH={side:"seller",pid:null,rows:[]};
+const seen=()=>{ try{ return JSON.parse(localStorage.getItem("adm_seen")||"{}"); }catch(e){ return {}; } };
+const setSeen=o=>{ try{ localStorage.setItem("adm_seen",JSON.stringify(o)); }catch(e){} };
+
+// ---------- ЗВУК И КНОПКИ ----------
+let AC=null;
+function beep(){
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended") AC.resume();
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type="sine"; o.frequency.value=880; g.gain.value=0.05;
+    o.connect(g); g.connect(AC.destination);
+    o.start(); o.stop(AC.currentTime+0.07);
+  }catch(e){}
+}
+document.addEventListener("click",e=>{ if(e.target.closest("button,a,.item,.row2,.tile,.catrow")) beep(); },true);
+let TT=null;
+function toast(msg,type){
+  const t=$("#toast"); if(!t) return;
+  t.textContent=msg; t.className="toast show "+(type||"");
+  clearTimeout(TT); TT=setTimeout(()=>{ t.className="toast"; },2600);
+}
+async function act(btn,fn,doneCls){
+  if(!btn||btn.disabled) return false;
+  const label=btn.dataset.label||btn.textContent.trim();
+  btn.dataset.label=label;
+  btn.disabled=true; btn.classList.add("busy");
+  btn.innerHTML='<span class="spin"></span>...';
+  try{
+    await fn();
+    btn.classList.remove("busy");
+    if(doneCls) btn.classList.add(doneCls);
+    btn.innerHTML="✓ "+label;
+    return true;
+  }catch(e){
+    btn.classList.remove("busy"); btn.classList.add("fail");
+    btn.innerHTML="✕ "+label;
+    toast(e.message||"Ошибка","err");
+    setTimeout(()=>{ btn.disabled=false; btn.classList.remove("fail"); btn.innerHTML=label; },1500);
+    return false;
+  }
+}
+function openSheet(html){ $("#sbox").innerHTML=html; $("#sheet").classList.add("open"); }
+function closeSheet(){ $("#sheet").classList.remove("open"); }
+function ferr(key,msg){
+  const e=document.querySelector(`.ferr[data-for="${key}"]`); if(e) e.textContent=msg;
+  const inp=$(key==="photos"?"#drop":"#"+key); if(inp) inp.classList.add("bad");
+}
+function clearErr(){
+  document.querySelectorAll(".ferr").forEach(e=>e.textContent="");
+  document.querySelectorAll(".bad").forEach(e=>e.classList.remove("bad"));
+}
+function linkify(s){ return esc(s).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g,"<br>"); }
+
+// ---------- ОТПЕЧАТОК И СЖАТИЕ ----------
+function loadImg(src){
+  return new Promise((res,rej)=>{ const im=new Image(); im.crossOrigin="anonymous"; im.onload=()=>res(im); im.onerror=()=>rej(new Error("image")); im.src=src; });
+}
+async function dhash(src){
+  const im=await loadImg(src);
+  const c=document.createElement("canvas"); c.width=9; c.height=8;
+  const x=c.getContext("2d"); x.drawImage(im,0,0,9,8);
+  const d=x.getImageData(0,0,9,8).data;
+  const g=k=>0.299*d[k]+0.587*d[k+1]+0.114*d[k+2];
+  let bits="";
+  for(let y=0;y<8;y++) for(let i=0;i<8;i++) bits+=g((y*9+i)*4)>g((y*9+i+1)*4)?"1":"0";
+  return BigInt("0b"+bits).toString(16).padStart(16,"0");
+}
+async function toJpeg(file,max,q){
+  const url=URL.createObjectURL(file);
+  try{
+    const img=await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>rej(new Error("Не удалось открыть фото")); i.src=url; });
+    const k=Math.min(1,max/Math.max(img.width,img.height));
+    const c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Не удалось сжать фото")),"image/jpeg",q));
+  }finally{ URL.revokeObjectURL(url); }
+}
+
+// ---------- ВХОД ----------
+async function init(){
+  const {data}=await db.auth.getSession();
+  user=data.session?.user||null;
+  if(!user) return loginView();
+  if(!(await isAdmin())) return location.replace("../");
+  start();
+}
+async function isAdmin(){
+  const {data}=await db.from("admins").select("user_id").eq("user_id",user.id);
+  return !!(data&&data.length);
+}
+function loginView(){
+  document.body.classList.add("nologin");
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="hero"><div class="logo"><span>700</span><small>OPTOM · ADMIN</small></div></div>
+    <div class="card">
+      <input id="em" type="email" placeholder="Email">
+      <input id="pw" type="password" placeholder="Пароль">
+      <button class="btn" data-label="Войти" onclick="login(this)">Войти</button>
+    </div></div>`;
+}
+async function login(btn){
+  await act(btn,async()=>{
+    const {data,error}=await db.auth.signInWithPassword({email:$("#em").value.trim(),password:$("#pw").value});
+    if(error) throw new Error("Неверный email или пароль.");
+    user=data.user;
+    if(!(await isAdmin())){ location.replace("../"); throw new Error("Нет доступа"); }
+  });
+  if(user) start();
+}
+async function logout(){
+  clearInterval(TIMER); TIMER=null;
+  await db.auth.signOut(); user=null;
+  loginView();
+}
+
+// ---------- СТАРТ И НАВИГАЦИЯ ----------
+async function start(){
+  document.body.classList.remove("nologin");
+  try{ await db.rpc("admin_expire_products"); }catch(e){}
+  await loadRefs();
+  show("home");
+  clearInterval(TIMER);
+  TIMER=setInterval(tick,20000);
+}
+function setTab(t){
+  TAB=t;
+  document.querySelectorAll(".bottom a").forEach(a=>a.classList.toggle("on",a.dataset.t===t));
+}
+async function show(t){
+  window.scrollTo(0,0);
+  if(t==="home") return homeView();
+  if(t==="cat") return catView(null);
+  if(t==="chat") return chatView();
+  if(t==="more") return moreView();
+}
+async function tick(){
+  try{
+    await loadChats();
+    updateBadges();
+    if(TAB==="chat"){
+      if(OPEN) await loadOpen(false);
+      else renderChatList();
+    }
+    if(TAB==="home") await loadStats();
+  }catch(e){}
+}
+async function loadRefs(){
+  const [{data:cats},{data:countries},{data:cities}]=await Promise.all([
+    db.from("categories").select("*"),
+    db.from("countries").select("*").order("name"),
+    db.from("cities").select("*").order("name")
+  ]);
+  CATS=cats||[]; COUNTRIES=countries||[]; CITIES=cities||[];
+}
+function sortedChildren(parent){
+  return CATS.filter(c=>(c.parent_id??null)===(parent??null))
+    .sort((a,b)=>(a.sort_order??0)-(b.sort_order??0)||a.name.localeCompare(b.name));
+}
+function countryOptions(sel){
+  return COUNTRIES.map(k=>`<option value="${k.id}" ${k.id==sel?"selected":""}>${esc(k.name)}</option>`).join("");
+}
+function cityOptions(countryId,sel){
+  return CITIES.filter(c=>!countryId||c.country_id==countryId)
+    .map(c=>`<option value="${c.id}" ${c.id==sel?"selected":""}>${esc(c.name)}</option>`).join("");
+}
+function fCountry(){
+  const k=$("#f_k").value;
+  $("#f_ci").innerHTML=`<option value="">Город</option>${k?cityOptions(k,null):""}`;
+}
+
+// ---------- ХОНА ----------
+async function homeView(){
+  setTab("home");
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="top"><div class="who">Админ <b>${ADMIN_NAME}</b></div><button class="btn sm n" onclick="logout()">Выйти</button></div>
+    <div class="hero"><div class="logo"><span>700</span><small>OPTOM</small></div></div>
+    <div class="stats" id="stats"><div class="stat"><span>Загрузка...</span></div></div>
+    <button class="btn n" onclick="sellersView()">👥 Сохибкорон ›</button>
+  </div>`;
+  loadStats();
+}
+async function loadStats(){
+  const now=new Date().toISOString();
+  const [{count:prods},{data:n},{count:paid}]=await Promise.all([
+    db.from("products").select("id",{count:"exact",head:true}).eq("status","published").gt("photos_until",now),
+    db.rpc("sellers_count"),
+    db.from("products").select("id",{count:"exact",head:true}).eq("fee_paid",true)
+  ]);
+  const el=$("#stats"); if(!el) return;
+  el.innerHTML=`
+    <div class="stat"><span>Товаров на сайте</span><b>${prods??0}</b></div>
+    <div class="stat"><span>Сохибкорон</span><b>${n??0}</b></div>
+    <div class="stat"><span>Баланс (сомонӣ)</span><b class="red">${(paid??0)*FEE}</b></div>`;
+}
+async function sellersView(){
+  setTab("home");
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="top"><button class="btn sm n" onclick="show('home')">← Назад</button><div class="who">Сохибкорон</div></div>
+    <div id="sellers"><p class="muted">Загрузка...</p></div>
+  </div>`;
+  loadSellers();
+}
+async function loadSellers(){
+  const {data,error}=await db.rpc("admin_sellers");
+  const el=$("#sellers"); if(!el) return;
+  if(error){ el.innerHTML=`<p class="err">${esc(error.message)}</p>`; return; }
+  SELLERS=data||[];
+  el.innerHTML=SELLERS.map(s=>`<div class="row2">
+      <div class="cn"><b>${esc(s.username||"Без имени")}</b><div class="muted">${esc(s.email||"")}</div></div>
+      <span class="cnt">${s.products_count}</span>
+      <button class="btn sm n" onclick="sellerProducts('${s.user_id}')">Товары</button>
+      <button class="btn sm x" data-label="🗑" onclick="delSeller(this,'${s.user_id}')">🗑</button>
+    </div>`).join("")||'<p class="muted">Сохибкорон пока нет</p>';
+}
+async function delSeller(btn,uid){
+  if(!confirm("Удалить аккаунт и все его товары?")) return;
+  await act(btn,async()=>{
+    const {error}=await db.rpc("admin_delete_seller",{p_uid:uid});
+    if(error) throw new Error(error.message);
+  },"no");
+  loadSellers(); loadStats();
+}
+
+// ---------- ТОВАРЫ ПО СОХИБКОРОН (ЕЩЁ) ----------
+async function productsSellersView(){
+  setTab("more");
+  const {data}=await db.rpc("admin_sellers");
+  SELLERS=data||[];
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="top"><button class="btn sm n" onclick="moreView()">← Назад</button><div class="who">Товары по сохибкорон</div></div>
+    ${SELLERS.map(s=>`<div class="row2 pointer" onclick="sellerProducts('${s.user_id}')">
+        <div class="cn"><b>${esc(s.username||"Без имени")}</b><div class="muted">${esc(s.email||"")}</div></div>
+        <span class="cnt">${s.products_count}</span>
+      </div>`).join("")||'<p class="muted">Сохибкорон пока нет</p>'}
+  </div>`;
+}
+async function sellerProducts(uid){
+  setTab("more");
+  const s=SELLERS.find(x=>x.user_id===uid);
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="top"><button class="btn sm n" onclick="productsSellersView()">← Назад</button><div class="who">${esc(s?.username||s?.email||"Сохибкор")}</div></div>
+    <div id="sp"><p class="muted">Загрузка...</p></div>
+  </div>`;
+  const {data,error}=await db.rpc("admin_seller_products",{p_seller:uid});
+  const el=$("#sp"); if(!el) return;
+  if(error){ el.innerHTML=`<p class="err">${esc(error.message)}</p>`; return; }
+  const list=data||[];
+  el.innerHTML=`<div class="muted" style="margin:4px 0">Всего товаров: ${list.length}</div>`+list.map(p=>{
+    const expired=p.status==="published"&&p.photos_until&&new Date(p.photos_until)<=new Date();
+    const st=expired?"Срок истёк":(STATUS[p.status]||p.status);
+    return `<div class="prod">
+      <div class="prow">
+        ${p.photo?`<img src="${esc(p.photo)}">`:`<div class="ph">📷</div>`}
+        <div class="pinfo"><b>${esc(p.title)}</b>
+          <div class="muted">${p.price} ₽ · добавлен ${fdate(p.created_at)}</div>
+          <div class="muted">${esc(st)} · ${tierName(p.status==="published"?p.tier:p.requested_tier)}</div>
+        </div>
+      </div>
+      <div class="acts">
+        <select class="sel" onchange="setTierSel(this,${p.id})">${tierOptions(p.tier)}</select>
+        <button class="btn sm ${p.recommended?"g":"n"}" onclick="toggleRec(this,${p.id},${!p.recommended},'${uid}')">${p.recommended?"⭐ Рекомендуется":"☆ Рекомендовать"}</button>
+        <button class="btn sm x" onclick="delProd(this,${p.id},'${uid}')">🗑 Удалить</button>
+      </div>
+    </div>`;
+  }).join("")||'<p class="muted">У продавца пока нет товаров</p>';
+}
+async function setTierSel(sel,id){
+  const {error}=await db.rpc("admin_set_tier",{p_id:id,p_tier:+sel.value});
+  if(error) return toast(error.message,"err");
+  toast("Продвижение сохранено","ok");
+}
+async function toggleRec(btn,id,val,uid){
+  await act(btn,async()=>{
+    const {error}=await db.rpc("admin_set_recommended",{p_id:id,p_val:val});
+    if(error) throw new Error(error.message);
+  },"ok");
+  sellerProducts(uid);
+}
+async function delProd(btn,id,uid){
+  if(!confirm("Удалить товар?")) return;
+  await act(btn,async()=>{
+    const {error}=await db.rpc("admin_delete_product",{p_id:id});
+    if(error) throw new Error(error.message);
+  },"no");
+  sellerProducts(uid);
+}
+
+// ---------- ЧАТ ----------
+async function loadChats(){
+  const [{data:msgs,error:e1},{data:pend,error:e2}]=await Promise.all([
+    db.from("support_messages").select("conv_key,sender,body,seller_email,created_at").order("created_at"),
+    db.from("products").select("id,seller_id,owner_email,title,created_at").eq("status","pending_review").order("created_at")
+  ]);
+  if(e1||e2) toast((e1||e2).message,"err");
+  CHATS=msgs||[]; PENDING=pend||[];
+}
+function buildGroups(){
+  const map={}, sn=seen();
+  CHATS.forEach(m=>{
+    const g=map[m.conv_key]||(map[m.conv_key]={key:m.conv_key,last:null,email:"",unread:0});
+    g.last=m;
+    if(m.seller_email) g.email=m.seller_email;
+    if(m.sender==="user"){ const s=sn[m.conv_key]; if(!s||new Date(m.created_at)>new Date(s)) g.unread++; }
+  });
+  return Object.values(map).sort((a,b)=>new Date(b.last.created_at)-new Date(a.last.created_at));
+}
+function updateBadges(){
+  const gs=buildGroups();
+  const s=gs.filter(g=>g.key.startsWith("seller:")).reduce((a,g)=>a+g.unread,0);
+  const q=gs.filter(g=>!g.key.startsWith("seller:")).reduce((a,g)=>a+g.unread,0);
+  const set=(id,n)=>{ const e=$(id); if(e) e.textContent=n||""; };
+  set("#bdChat",s+q+PENDING.length);
+  set("#pS",s); set("#pQ",q); set("#pR",PENDING.length);
+}
+function chatView(){
+  setTab("chat");
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="top"><div class="who">Чат</div><button class="btn sm n" onclick="openArchiveSheet()">🗂 Архив</button></div>
+    <div class="pills">
+      <button class="pill ${CHAN==="seller"?"on":""}" onclick="setChan('seller')">Продавец<b class="bd" id="pS"></b></button>
+      <button class="pill ${CHAN==="question"?"on":""}" onclick="setChan('question')">Вопрос<b class="bd" id="pQ"></b></button>
+      <button class="pill ${CHAN==="requests"?"on":""}" onclick="setChan('requests')">Заявка<b class="bd" id="pR"></b></button>
+    </div>
+    <div id="chatlist"><p class="muted">Загрузка...</p></div>
+    <div id="chatbox"></div>
+  </div>`;
+  OPEN=null;
+  loadChats().then(()=>renderChatList());
+}
+function setChan(c){ CHAN=c; chatView(); }
+function renderChatList(){
+  if(CHAN==="requests") return renderRequests();
+  const el=$("#chatlist"); if(!el) return;
+  const gs=buildGroups().filter(g=>(CHAN==="seller")===g.key.startsWith("seller:"));
+  el.innerHTML=gs.map(g=>`<div class="item" onclick="openChat('${g.key}')">
+      <div class="it"><b>${esc(g.email||"Гость")}</b><span class="muted">${g.last?fmt(g.last.created_at):""}</span></div>
+      <div class="prev">${g.last?esc(g.last.body||"Фото"):""}</div>
+      ${g.unread?`<span class="bd2">${g.unread}</span>`:""}
+    </div>`).join("")||'<p class="muted">Здесь пока пусто</p>';
+  updateBadges();
+}
+async function openChat(key){
+  OPEN=key;
+  const g=buildGroups().find(x=>x.key===key);
+  $("#chatbox").innerHTML=`<div class="card">
+    <div class="it"><button class="btn sm n" onclick="closeChat()">✕ Закрыть</button><button class="btn sm x" onclick="delChat(this,'${key}')">🗑 Удалить чат</button></div>
+    <div class="who" style="margin:8px 0">${esc(g?.email||"Гость")}</div>
+    <div class="log" id="log"></div>
+    <form class="rform" onsubmit="sendReply(event)">
+      <textarea id="rt" placeholder="Ответ..." maxlength="1000"></textarea>
+      <button class="btn" id="rbtn" data-label="➤" type="submit">➤</button>
+    </form>
+  </div>`;
+  await loadOpen(true);
+  renderChatList();
+}
+function closeChat(){ OPEN=null; const b=$("#chatbox"); if(b) b.innerHTML=""; renderChatList(); }
+async function delChat(btn,key){
+  if(!confirm("Удалить этот чат полностью? Восстановить его будет нельзя.")) return;
+  const ok=await act(btn,async()=>{
+    const {error}=await db.rpc("admin_delete_support",{p_key:key});
+    if(error) throw new Error(error.message);
+  },"no");
+  if(ok){ closeChat(); await loadChats(); updateBadges(); }
+}
+async function loadOpen(scroll){
+  if(!OPEN||!$("#log")) return;
+  const {data,error}=await db.from("support_messages").select("id,sender,body,attachment,created_at").eq("conv_key",OPEN).order("created_at");
+  const log=$("#log"); if(!log) return;
+  if(error){ log.innerHTML=`<p class="err">${esc(error.message)}</p>`; return; }
+  const near=log.scrollHeight-log.scrollTop-log.clientHeight<100;
+  log.innerHTML=(data||[]).map(m=>`<div class="msg ${m.sender==="admin"?"a":"b"}">${m.attachment?`<img src="${esc(m.attachment)}">`:""}${m.body&&m.body!=="📷 Фото"?linkify(m.body):""}<div class="who">${fmt(m.created_at)}</div></div>`).join("")
+    ||'<p class="muted">Сообщений нет</p>';
+  if(scroll||near) log.scrollTop=log.scrollHeight;
+  const sn=seen(); sn[OPEN]=new Date().toISOString(); setSeen(sn);
+}
+async function sendReply(e){
+  e.preventDefault();
+  const t=$("#rt"), body=t.value.trim(); if(!body) return;
+  const btn=$("#rbtn");
+  const ok=await act(btn,async()=>{
+    const {error}=await db.rpc("support_admin_reply",{p_key:OPEN,p_body:body});
+    if(error) throw new Error(error.message);
+  },"ok");
+  if(ok) t.value="";
+  setTimeout(()=>{ btn.disabled=false; btn.classList.remove("ok"); btn.innerHTML="➤"; },600);
+  await loadOpen(true);
+  await loadChats(); updateBadges();
+}
+
+// ---------- ЗАЯВКИ НА ТОВАР ----------
+async function renderRequests(){
+  const el=$("#chatlist"); if(!el) return;
+  const cb=$("#chatbox"); if(cb) cb.innerHTML="";
+  const {data,error}=await db.from("products")
+    .select("id,title,price,min_order,quality,origin_country,address,seller_phone,seller_email,instagram,payment_comment,receipt_url,draft_photos,created_at,requested_tier,owner_email,cities(name),countries(name),categories(name)")
+    .eq("status","pending_review").order("created_at");
+  if(!$("#chatlist")) return;
+  if(error){ el.innerHTML=`<p class="err">${esc(error.message)}</p>`; return; }
+  if(!(data||[]).length){ el.innerHTML='<p class="muted">Заявок нет</p>'; updateBadges(); return; }
+  const rows=await Promise.all(data.map(async p=>{
+    let photos=[];
+    if(p.draft_photos?.length){
+      const {data:ds}=await db.storage.from("product-drafts").createSignedUrls(p.draft_photos,3600);
+      photos=(ds||[]).map(d=>d.signedUrl).filter(Boolean);
+    }
+    let rc="";
+    if(p.receipt_url){ const {data:r}=await db.storage.from("receipts").createSignedUrl(p.receipt_url,3600); rc=r?.signedUrl||""; }
+    return `<div class="req">
+      <div class="rt">${tierName(p.requested_tier)} · ${ago(p.created_at)}</div>
+      <div class="rb">${esc(p.title)} · ${p.price} ₽ · мин. ${p.min_order}</div>
+      <div class="muted">${esc(p.countries?.name||"")}, ${esc(p.cities?.name||"")} · ${esc(p.categories?.name||"")}</div>
+      <div class="muted">${esc(p.seller_email||p.owner_email||"")} · ${esc(p.seller_phone||"—")}</div>
+      <div class="muted">Качество: ${esc(p.quality||"—")} · Производство: ${esc(p.origin_country||"—")}</div>
+      <div class="muted">Адрес: ${esc(p.address||"—")}</div>
+      <div class="note">Перевод: <b>${esc(p.payment_comment||"—")}</b>${rc?` · <a href="${esc(rc)}" target="_blank" rel="noopener" style="color:#fca5a5">чек</a>`:""}</div>
+      <div class="gal">${photos.map(u=>`<img src="${esc(u)}">`).join("")}</div>
+      <div class="acts">
+        <select class="sel" id="tier_${p.id}">${tierOptions(p.requested_tier)}</select>
+        <button class="btn sm g" data-label="Опубликовать" onclick="approveReq(this,${p.id})">Опубликовать</button>
+        <button class="btn sm x" data-label="Отменить" onclick="rejectReq(this,${p.id})">Отменить</button>
+      </div>
+    </div>`;
+  }));
+  el.innerHTML=rows.join("");
+  updateBadges();
+}
+async function publishProduct(id,tier){
+  const {data:p,error:e0}=await db.from("products").select("id,draft_photos").eq("id",id).maybeSingle();
+  if(e0||!p) throw new Error(e0?.message||"Товар не найден");
+  const drafts=p.draft_photos||[];
+  if(drafts.length<3) throw new Error("В товаре меньше 3 фото");
+  const urls=[]; let hash=null;
+  for(const [i,path] of drafts.entries()){
+    const {data:blob,error:e1}=await db.storage.from("product-drafts").download(path);
+    if(e1||!blob) throw new Error("Фото не найдено");
+    if(i===0){ try{ hash=await dhash(URL.createObjectURL(blob)); }catch(e){} }
+    const np=`${user.id}/${Date.now()}_${i}.jpg`;
+    const {error:e2}=await db.storage.from("product-photos").upload(np,blob,{contentType:blob.type||"image/jpeg"});
+    if(e2) throw new Error(e2.message);
+    urls.push(db.storage.from("product-photos").getPublicUrl(np).data.publicUrl);
+  }
+  const now=new Date(); const until=new Date(now);
+  until.setMonth(until.getMonth()+(tier>=2?5:3));
+  const row={photos:urls,draft_photos:[],status:"published",published_at:now.toISOString(),photos_until:until.toISOString(),fee_paid:true,tier:tier||0};
+  if(hash) row.img_hash=hash;
+  const {error:e3}=await db.from("products").update(row).eq("id",id);
+  if(e3) throw new Error(e3.message);
+  await db.storage.from("product-drafts").remove(drafts);
+}
+async function approveReq(btn,id){
+  const tier=+($("#tier_"+id)?.value||0);
+  const ok=await act(btn,()=>publishProduct(id,tier),"ok");
+  if(ok) setTimeout(async()=>{ await loadChats(); renderRequests(); },600);
+}
+async function rejectReq(btn,id){
+  const ok=await act(btn,async()=>{
+    const {error}=await db.from("products").update({status:"rejected"}).eq("id",id);
+    if(error) throw new Error(error.message);
+  },"no");
+  if(ok) setTimeout(async()=>{ await loadChats(); renderRequests(); },600);
+}
+
+// ---------- АРХИВ ЧАТОВ ----------
+function openArchiveSheet(){
+  openSheet(`<h3>Архив чатов</h3>
+    <button class="btn" onclick="closeSheet();archiveView('seller')">🏪 Архив продавцов</button>
+    <button class="btn n" onclick="closeSheet();archiveView('buyer')">🛍 Архив покупателей</button>
+    <button class="btn n" onclick="closeSheet()">Закрыть</button>`);
+}
+async function archiveView(side){
+  ARCH={side,pid:null,rows:[]};
+  setTab("chat");
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="top"><button class="btn sm n" onclick="chatView()">← Назад</button><div class="who">Архив ${side==="seller"?"продавцов":"покупателей"}</div></div>
+    <div id="arch"><p class="muted">Загрузка...</p></div>
+  </div>`;
+  const {data,error}=await db.rpc("admin_archive_threads");
+  if(!$("#arch")) return;
+  if(error){ $("#arch").innerHTML=`<p class="err">${esc(error.message)}</p>`; return; }
+  ARCH.rows=data||[];
+  archPersons();
+}
+function archPersons(){
+  const el=$("#arch"); if(!el) return;
+  ARCH.pid=null;
+  const side=ARCH.side, key=side==="seller"?"seller_id":"buyer_id";
+  const map={};
+  ARCH.rows.forEach(r=>{
+    const id=r[key];
+    const m=map[id]||(map[id]={id,name:side==="seller"?r.seller_name:r.buyer_name,email:side==="seller"?r.seller_email:r.buyer_email,threads:0,msgs:0,last:null});
+    m.threads++; m.msgs+=Number(r.msg_count||0);
+    if(!m.last||new Date(r.last_at)>new Date(m.last)) m.last=r.last_at;
+  });
+  const list=Object.values(map).sort((a,b)=>new Date(b.last||0)-new Date(a.last||0));
+  el.innerHTML=list.map(m=>`<div class="item" onclick="archThreads('${m.id}')">
+      <div class="it"><b>${esc(m.name||"Без имени")}</b><span class="muted">${m.last?fmt(m.last):""}</span></div>
+      <div class="muted">${esc(m.email||"")}</div>
+      <div class="muted">Диалогов: ${m.threads} · сообщений: ${m.msgs}</div>
+    </div>`).join("")||'<p class="muted">Архив пуст</p>';
+}
+function archThreads(pid){
+  ARCH.pid=pid;
+  const key=ARCH.side==="seller"?"seller_id":"buyer_id";
+  const list=ARCH.rows.filter(r=>r[key]===pid);
+  $("#arch").innerHTML=`<button class="btn sm n" onclick="archPersons()">← К списку</button>
+    ${list.map(r=>`<div class="item" onclick="archThread(${r.thread_id})">
+      <div class="it"><b>${esc(r.seller_name||"Продавец")} ↔ ${esc(r.buyer_name||"Покупатель")}</b></div>
+      <div class="muted">Сообщений: ${r.msg_count} · ${r.last_at?fmt(r.last_at):""}</div>
+    </div>`).join("")}`;
+}
+async function archThread(tid){
+  const r=ARCH.rows.find(x=>x.thread_id===tid); if(!r) return;
+  const {data,error}=await db.rpc("admin_archive_messages",{p_thread:tid});
+  const el=$("#arch"); if(!el) return;
+  if(error){ el.innerHTML=`<p class="err">${esc(error.message)}</p>`; return; }
+  el.innerHTML=`<button class="btn sm n" onclick="archThreads('${ARCH.pid}')">← Назад</button>
+    <div class="who" style="margin:8px 0">${esc(r.seller_name||"Продавец")} ↔ ${esc(r.buyer_name||"Покупатель")}</div>
+    <div class="muted">${esc(r.seller_email||"")} · ${esc(r.buyer_email||"")}</div>
+    <div class="log" style="height:50vh">${(data||[]).map(m=>{
+      const seller=m.sender_id===r.seller_id;
+      return `<div class="msg ${seller?"a":"b"}"><div class="who">${seller?"Продавец":"Покупатель"} · ${fmt(m.created_at)}</div>${m.attachment?`<img src="${esc(m.attachment)}">`:""}${m.body?linkify(m.body):""}</div>`;
+    }).join("")||'<p class="muted">Сообщений нет</p>'}</div>
+    <div class="acts"><button class="btn sm x" data-label="🗑 Удалить живой чат" onclick="delLiveThread(this,${tid})">🗑 Удалить живой чат</button></div>
+    <p class="muted">Копия переписки остаётся в архиве.</p>`;
+}
+async function delLiveThread(btn,tid){
+  if(!confirm("Удалить живой диалог между продавцом и покупателем? Копия останется в архиве.")) return;
+  const ok=await act(btn,async()=>{
+    const {error}=await db.rpc("admin_delete_thread",{p_thread:tid});
+    if(error) throw new Error(error.message);
+  },"no");
+  if(ok) setTimeout(()=>archiveView(ARCH.side),500);
+}
+
+// ---------- КАТАЛОГ (+) ----------
+async function catView(parent){
+  setTab("cat");
+  await loadRefs();
+  const current=parent?CATS.find(c=>c.id===parent):null;
+  const children=sortedChildren(parent);
+  const crumbs=[]; let cur=current;
+  while(cur){ crumbs.unshift(cur); cur=CATS.find(c=>c.id===cur.parent_id); }
+  const isLeaf=!!current&&!CATS.some(c=>c.parent_id===current.id);
+  const head=`<div class="crumbs"><a href="#" onclick="catView(null);return false">Каталог</a>${crumbs.map(c=>` › <a href="#" onclick="catView(${c.id});return false">${esc(c.name)}</a>`).join("")}</div>`;
+  let body="";
+  if(isLeaf){
+    body=`<div class="card"><div class="muted">Товары каталога этой категории</div>
+      <button class="btn" onclick="productForm(null,${current.id})">＋ Добавить товар</button>
+      <div id="catProducts"><p class="muted">Загрузка...</p></div></div>`;
+  } else {
+    body=`${children.map((c,i)=>catRow(c,i,children.length)).join("")||'<p class="muted">Здесь пока пусто</p>'}
+      <div class="card"><div class="ar"><input id="newcat" placeholder="Название ${current?"подкатегории":"категории"}">
+        <button class="btn sm" data-label="＋" onclick="addCat(this,${current?current.id:"null"})">＋</button></div></div>`;
+  }
+  $("#app").innerHTML=`<div class="wrap"><div class="top"><div class="who">Каталог</div></div>${head}${body}</div>`;
+  if(isLeaf) loadCatProducts(current.id);
+}
+function catRow(c,i,n){
+  const img=c.image?`<img src="${esc(c.image)}">`:`<span>${icon(c.name)}</span>`;
+  const hasKids=CATS.some(x=>x.parent_id===c.id);
+  return `<div class="catrow">
+    <div class="ci">${img}</div>
+    <div class="cn" onclick="catView(${c.id})"><b>${esc(c.name)}</b><div class="muted">${hasKids?"Есть подкатегории ›":"Раздел для товаров"}</div></div>
+    <div class="ctl">
+      <button class="s" ${i===0?"disabled":""} onclick="moveCat(${c.id},-1)">▲</button>
+      <button class="s" ${i===n-1?"disabled":""} onclick="moveCat(${c.id},1)">▼</button>
+      <button class="s" onclick="$('#ci${c.id}').click()">🖼</button>
+      <input type="file" id="ci${c.id}" accept="image/*" style="display:none" onchange="catImage(${c.id},this.files[0])">
+      <button class="s" onclick="renameCat(${c.id})">✎</button>
+      <button class="s no" onclick="delCat(this,${c.id})">🗑</button>
+    </div>
+  </div>`;
+}
+async function moveCat(id,dir){
+  const c=CATS.find(x=>x.id===id); if(!c) return;
+  const sibs=sortedChildren(c.parent_id);
+  const i=sibs.findIndex(x=>x.id===id), j=i+dir;
+  if(j<0||j>=sibs.length) return;
+  const other=sibs[j];
+  const r1=await db.from("categories").update({sort_order:j}).eq("id",c.id);
+  const r2=await db.from("categories").update({sort_order:i}).eq("id",other.id);
+  if(r1.error||r2.error) return toast((r1.error||r2.error).message,"err");
+  catView(c.parent_id);
+}
+async function renameCat(id){
+  const c=CATS.find(x=>x.id===id); if(!c) return;
+  const name=prompt("Новое название",c.name);
+  if(!name||!name.trim()) return;
+  const {error}=await db.from("categories").update({name:name.trim()}).eq("id",id);
+  if(error) return toast(error.message,"err");
+  catView(c.parent_id);
+}
+async function catImage(id,file){
+  if(!file) return;
+  try{
+    const c=CATS.find(x=>x.id===id);
+    const blob=await toJpeg(file,800,0.85);
+    const path=`cat_${id}_${Date.now()}.jpg`;
+    const {error}=await db.storage.from("category-images").upload(path,blob,{contentType:"image/jpeg"});
+    if(error) throw new Error(error.message);
+    const url=db.storage.from("category-images").getPublicUrl(path).data.publicUrl;
+    const {error:e2}=await db.from("categories").update({image:url}).eq("id",id);
+    if(e2) throw new Error(e2.message);
+    toast("Фото категории сохранено","ok");
+    catView(c?c.parent_id:null);
+  }catch(err){ toast("Ошибка: "+err.message,"err"); }
+}
+async function addCat(btn,parent){
+  const name=($("#newcat").value||"").trim();
+  if(!name){ toast("Введите название","err"); return; }
+  const sibs=sortedChildren(parent);
+  const next=sibs.length?Math.max(...sibs.map(s=>s.sort_order??0))+1:0;
+  await act(btn,async()=>{
+    const {error}=await db.from("categories").insert({name,parent_id:parent,sort_order:next});
+    if(error) throw new Error(error.message);
+  },"ok");
+  catView(parent);
+}
+async function delCat(btn,id){
+  const c=CATS.find(x=>x.id===id);
+  if(!confirm("Удалить категорию вместе с вложенными?")) return;
+  await act(btn,async()=>{
+    const {error}=await db.from("categories").delete().eq("id",id);
+    if(error) throw new Error(error.message);
+  },"no");
+  catView(c?c.parent_id:null);
+}
+async function loadCatProducts(catId){
+  const {data}=await db.from("products").select("id,title,price,min_order,photos,tier")
+    .is("seller_id",null).eq("category_id",catId).order("created_at",{ascending:false});
+  const el=$("#catProducts"); if(!el) return;
+  el.innerHTML=(data||[]).map(p=>`<div class="prod">
+      <div class="prow"><img src="${esc(p.photos?.[0]||"")}"><div class="pinfo"><b>${esc(p.title)}</b><div class="muted">${p.price} ₽ · мин. ${p.min_order}</div></div></div>
+      <div class="acts">
+        <select class="sel" onchange="setTierSel(this,${p.id})">${tierOptions(p.tier)}</select>
+        <button class="btn sm n" onclick="productForm(${p.id},null)">✎ Изменить</button>
+        <button class="btn sm x" onclick="delCatalog(this,${p.id},${catId})">🗑</button>
+      </div>
+    </div>`).join("")||'<p class="muted">Товаров пока нет</p>';
+}
+async function delCatalog(btn,id,catId){
+  if(!confirm("Удалить товар из каталога?")) return;
+  await act(btn,async()=>{
+    const {error}=await db.from("products").delete().eq("id",id);
+    if(error) throw new Error(error.message);
+  },"no");
+  loadCatProducts(catId);
+}
+
+// ---------- ФОРМА ТОВАРА КАТАЛОГА ----------
+async function productForm(id,catId){
+  await loadRefs();
+  PHOTOS=[];
+  let p={};
+  if(id){
+    const {data}=await db.from("products").select("*").eq("id",id).maybeSingle();
+    if(!data){ toast("Товар не найден","err"); return; }
+    p=data; catId=p.category_id;
+  }
+  const cat=CATS.find(c=>c.id===catId);
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="crumbs"><a href="#" onclick="catView(${cat?cat.id:"null"});return false">← назад</a></div>
+    <h2 style="font-size:17px;margin:4px 0 6px">${id?"Изменить товар":"Новый товар в каталоге"}</h2>
+    <div class="pill-s">Категория: <b>${esc(cat?.name||"—")}</b></div>
+    <div class="card">
+      <div class="drop" id="drop">
+        <label class="addph">＋ Фото (от 1 до 6)<input type="file" accept="image/*" multiple onchange="addPhotos(this)" style="display:none"></label>
+        <div class="thumbs" id="thumbs"></div>
+        ${id?'<p class="muted" style="margin:6px 0 0">Новые фото заменят старые.</p>':""}
+      </div>
+      <div class="ferr" data-for="photos"></div>
+    </div>
+    <div class="card">
+      <input id="f_t" placeholder="Название" value="${esc(p.title)}" oninput="clearErr()">
+      <div class="ferr" data-for="f_t"></div>
+      <textarea id="f_d" rows="3" placeholder="Описание">${esc(p.description)}</textarea>
+      <select id="f_k" onchange="fCountry()"><option value="">Страна продажи</option>${countryOptions(p.country_id)}</select>
+      <div class="ferr" data-for="f_k"></div>
+      <select id="f_ci"><option value="">Город</option>${p.country_id?cityOptions(p.country_id,p.city_id):""}</select>
+      <div class="ferr" data-for="f_ci"></div>
+      <input id="f_p" type="number" placeholder="Цена за штуку, ₽" value="${p.price??""}">
+      <div class="ferr" data-for="f_p"></div>
+      <input id="f_m" type="number" placeholder="Минимальный заказ, шт" value="${p.min_order??""}">
+      <div class="ferr" data-for="f_m"></div>
+      <select id="f_tier">${tierOptions(p.tier)}</select>
+      <input id="f_q" placeholder="Качество" value="${esc(p.quality)}">
+      <input id="f_o" placeholder="Страна производства" value="${esc(p.origin_country)}">
+      <input id="f_a" placeholder="Адрес" value="${esc(p.address)}">
+      <input id="f_ph" type="tel" placeholder="Телефон" value="${esc(p.seller_phone)}">
+      <input id="f_em" type="email" placeholder="Email" value="${esc(p.seller_email)}">
+      <input id="f_ig" placeholder="Instagram (необязательно)" value="${esc(p.instagram)}">
+    </div>
+    <button class="btn" data-label="${id?"Сохранить":"Добавить в каталог"}" onclick="saveCatalog(this,${id?id:"null"},${catId})">${id?"Сохранить":"Добавить в каталог"}</button>
+  </div>`;
+  renderThumbs();
+}
+function addPhotos(el){
+  const arr=[...el.files]; el.value="";
+  const room=6-PHOTOS.length;
+  if(room<=0){ toast("Максимум 6 фото","err"); return; }
+  PHOTOS=PHOTOS.concat(arr.slice(0,room));
+  renderThumbs();
+  const e=document.querySelector('.ferr[data-for="photos"]'); if(e) e.textContent="";
+  const d=$("#drop"); if(d) d.classList.remove("bad");
+}
+function removePhoto(i){ PHOTOS.splice(i,1); renderThumbs(); }
+function renderThumbs(){
+  const box=$("#thumbs"); if(!box) return;
+  box.innerHTML=PHOTOS.map((f,i)=>`<div class="th"><img src="${URL.createObjectURL(f)}"><button class="x" onclick="removePhoto(${i})">×</button>${i===0?'<span class="cv">Главное</span>':""}</div>`).join("");
+}
+async function saveCatalog(btn,id,catId){
+  const v=k=>($("#"+k)?.value??"").trim();
+  clearErr();
+  const price=+v("f_p"), min=+v("f_m"), country=+$("#f_k").value, city=+$("#f_ci").value, title=v("f_t");
+  let ok=true;
+  if(!title){ ferr("f_t","Введите название"); ok=false; }
+  if(!country){ ferr("f_k","Выберите страну"); ok=false; }
+  if(!city){ ferr("f_ci","Выберите город"); ok=false; }
+  if(!(price>0)){ ferr("f_p","Укажите цену"); ok=false; }
+  if(!(min>0)){ ferr("f_m","Укажите минимальный заказ"); ok=false; }
+  if(!id&&(PHOTOS.length<1||PHOTOS.length>6)){ ferr("photos","Добавьте от 1 до 6 фото"); ok=false; }
+  if(id&&PHOTOS.length>6){ ferr("photos","Не больше 6 фото"); ok=false; }
+  if(!ok){ toast("Заполните отмеченные шаги","err"); return; }
+  await act(btn,async()=>{
+    const row={title,description:v("f_d")||null,category_id:catId,country_id:country,city_id:city,price,min_order:min,
+      tier:+($("#f_tier")?.value||0),
+      quality:v("f_q")||null,origin_country:v("f_o")||null,address:v("f_a")||null,
+      seller_phone:v("f_ph")||null,seller_email:v("f_em")||null,instagram:v("f_ig")||null};
+    if(PHOTOS.length){
+      const photos=[]; let hash=null;
+      for(let i=0;i<PHOTOS.length;i++){
+        const blob=await toJpeg(PHOTOS[i],1200,0.82);
+        const path=`${user.id}/cat_${Date.now()}_${i}.jpg`;
+        const {error}=await db.storage.from("product-photos").upload(path,blob,{contentType:"image/jpeg"});
+        if(error) throw new Error(error.message);
+        photos.push(db.storage.from("product-photos").getPublicUrl(path).data.publicUrl);
+        if(i===0){ try{ hash=await dhash(URL.createObjectURL(blob)); }catch(e){} }
+      }
+      row.photos=photos; if(hash) row.img_hash=hash;
+    }
+    if(id){
+      const {error}=await db.from("products").update(row).eq("id",id);
+      if(error) throw new Error(error.message);
+    } else {
+      row.seller_id=null; row.status="published";
+      row.published_at=new Date().toISOString();
+      row.photos_until="2099-12-31T00:00:00Z";
+      const {error}=await db.from("products").insert(row);
+      if(error) throw new Error(error.message);
+    }
+  },"ok");
+  setTimeout(()=>catView(catId),500);
+}
+
+// ---------- ЕЩЁ: СТРАНЫ И ГОРОДА ----------
+async function moreView(){
+  setTab("more");
+  await loadRefs();
+  $("#app").innerHTML=`<div class="wrap">
+    <div class="top"><div class="who">Ещё</div></div>
+    <button class="btn" onclick="productsSellersView()">📦 Товары по сохибкорон ›</button>
+    <h3>Страны</h3>
+    <div class="card"><div class="ar"><input id="kn" placeholder="Новая страна"><button class="btn sm" data-label="＋" onclick="addCountry(this)">＋</button></div></div>
+    ${COUNTRIES.map(k=>`<div class="row2"><div class="cn"><b>${esc(k.name)}</b></div>
+      <div class="ctl"><button class="s" onclick="editCountry(${k.id})">✎</button><button class="s no" onclick="delCountry(this,${k.id})">🗑</button></div></div>`).join("")}
+    <h3>Города</h3>
+    <div class="card">
+      <select id="cc"><option value="">— страна —</option>${countryOptions(null)}</select>
+      <div class="ar"><input id="ctn" placeholder="Новый город"><button class="btn sm" data-label="＋" onclick="addCity(this)">＋</button></div>
+    </div>
+    ${CITIES.map(c=>`<div class="row2"><div class="cn"><b>${esc(c.name)}</b><div class="muted">${esc(COUNTRIES.find(k=>k.id===c.country_id)?.name||"")}</div></div>
+      <div class="ctl"><button class="s" onclick="editCity(${c.id})">✎</button><button class="s no" onclick="delCity(this,${c.id})">🗑</button></div></div>`).join("")}
+    <button class="btn n" onclick="logout()" style="margin-top:14px">Выйти из аккаунта</button>
+  </div>`;
+}
+async function addCountry(btn){
+  const name=($("#kn").value||"").trim(); if(!name){ toast("Введите название","err"); return; }
+  await act(btn,async()=>{ const {error}=await db.from("countries").insert({name}); if(error) throw new Error(error.message); },"ok");
+  moreView();
+}
+async function editCountry(id){
+  const k=COUNTRIES.find(x=>x.id===id);
+  const name=prompt("Новое название страны",k?k.name:""); if(!name||!name.trim()) return;
+  const {error}=await db.from("countries").update({name:name.trim()}).eq("id",id);
+  if(error) return toast(error.message,"err");
+  moreView();
+}
+async function delCountry(btn,id){
+  if(!confirm("Удалить страну? Это невозможно, если в ней есть города или товары.")) return;
+  await act(btn,async()=>{ const {error}=await db.from("countries").delete().eq("id",id); if(error) throw new Error(error.message); },"no");
+  moreView();
+}
+async function addCity(btn){
+  const name=($("#ctn").value||"").trim(), cid=+$("#cc").value;
+  if(!name||!cid){ toast("Выберите страну и введите город","err"); return; }
+  await act(btn,async()=>{ const {error}=await db.from("cities").insert({name,country_id:cid}); if(error) throw new Error(error.message); },"ok");
+  moreView();
+}
+async function editCity(id){
+  const c=CITIES.find(x=>x.id===id);
+  const name=prompt("Новое название города",c?c.name:""); if(!name||!name.trim()) return;
+  const {error}=await db.from("cities").update({name:name.trim()}).eq("id",id);
+  if(error) return toast(error.message,"err");
+  moreView();
+}
+async function delCity(btn,id){
+  if(!confirm("Удалить город?")) return;
+  await act(btn,async()=>{ const {error}=await db.from("cities").delete().eq("id",id); if(error) throw new Error(error.message); },"no");
+  moreView();
+}
+
+init();
+</script>
+</body>
+</html>
